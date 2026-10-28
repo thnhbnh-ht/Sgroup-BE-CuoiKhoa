@@ -1,10 +1,10 @@
 import express from "express";
 import path from "path";
-import router from "./src/route/route.js";
-import errorHandler from "./src/middleware/errorHandler.js";
-import { NotFoundError } from "./src/core/error.response.js";
-import { config } from "./src/config/.env.config.js";
-import { connectDB } from "./src/config/db.config.js";
+import router from "./route/route.js";
+import errorHandler from "./middleware/errorHandler.js";
+import { NotFoundError } from "./core/error.response.js";
+import { config } from "./config/.env.config.js";
+import { connectDB } from "./config/db.config.js";
 
 const app = express();
 
