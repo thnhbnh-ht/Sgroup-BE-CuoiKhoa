@@ -1,34 +1,32 @@
 import { UnauthorizedError } from "../core/error.response.js";
-import { verifyToken } from "../utils/jwt.helper.js";
+import { verifyAccessToken } from "../utils/jwt.helper.js";
 
 export const authenticateToken = (req, res, next) => {
   const authHeader = req.headers["authorization"];
 
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    throw new UnauthorizedError("Bạn chưa đăng nhập! Vui lòng cung cấp token hợp lệ.");
+    throw new UnauthorizedError(
+      "Bạn chưa đăng nhập! Vui lòng cung cấp token hợp lệ.",
+    );
   }
 
   const token = authHeader.split(" ")[1];
 
   try {
-    const decoded = verifyToken(token);
+    const decoded = verifyAccessToken(token);
+
     req.user = decoded;
 
     next();
   } catch (error) {
     if (error.name === "TokenExpiredError") {
-      throw new UnauthorizedError("Token của bạn đã hết hạn, vui lòng đăng nhập lại!");
+      throw new UnauthorizedError(
+        "Token của bạn đã hết hạn, vui lòng đăng nhập lại!",
+      );
     }
-    throw new UnauthorizedError("Token không hợp lệ hoặc đã bị chỉnh sửa trái phép!");
-  }
-};
 
-export const requireAdmin = (req, res, next) => {
-  if (req.user && req.user.role === "ADMIN") {
-    return next();
+    throw new UnauthorizedError(
+      "Token không hợp lệ hoặc đã bị chỉnh sửa trái phép!",
+    );
   }
-  return res.status(403).json({
-    status: "error",
-    message: "Bạn không có quyền truy cập tài nguyên này (Yêu cầu quyền ADMIN)!",
-  });
 };

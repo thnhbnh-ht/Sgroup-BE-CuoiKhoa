@@ -15,5 +15,10 @@ export const login = catchAsync(async (req, res) => {
 export const getMe = catchAsync(async (req, res) => {
   const currentUserId = req.user.id;
   const userProfile = await authService.getMe(currentUserId);
-  return sendSuccess(res, 200, "Lấy thông tin cá nhân thành công!", userProfile);
+  return sendSuccess(
+    res,
+    200,
+    "Lấy thông tin cá nhân thành công!",
+    userProfile,
+  );
 });

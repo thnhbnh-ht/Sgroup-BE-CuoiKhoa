@@ -1,6 +1,6 @@
 import pkg from "pg";
 const { Pool } = pkg;
-import { config } from "./.env.config.js";
+import { config } from "./env.config.js";
 
 const pool = new Pool({
   host: config.db.host,
