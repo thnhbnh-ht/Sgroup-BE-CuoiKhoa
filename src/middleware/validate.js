@@ -126,3 +126,110 @@ export const loginRules = [
     .notEmpty()
     .withMessage("Mật khẩu không được để trống"),
 ];
+
+export const classIdParamRules = [
+  param("id")
+    .trim()
+    .notEmpty()
+    .withMessage("ID class không được để trống")
+    .isInt({ min: 1 })
+    .withMessage("ID class phải là số nguyên dương"),
+];
+
+export const createClassRules = [
+  body("name")
+    .trim()
+    .notEmpty()
+    .withMessage("Tên class không được để trống")
+    .isLength({ min: 2, max: 100 })
+    .withMessage("Tên class phải từ 2 đến 100 ký tự"),
+
+  body("description").optional().trim(),
+
+  body("startDate")
+    .optional()
+    .isISO8601()
+    .withMessage("Ngày bắt đầu không đúng định dạng"),
+
+  body("endDate")
+    .optional()
+    .isISO8601()
+    .withMessage("Ngày kết thúc không đúng định dạng"),
+
+  body("mentorId")
+    .optional()
+    .isInt({ min: 1 })
+    .withMessage("ID mentor phải là số nguyên dương"),
+];
+
+export const updateClassRules = [
+  body().custom((value, { req }) => {
+    const allowedFields = [
+      "name",
+      "description",
+      "startDate",
+      "endDate",
+      "mentorId",
+    ];
+
+    const hasAllowedField = Object.keys(req.body).some((key) =>
+      allowedFields.includes(key),
+    );
+
+    if (!hasAllowedField) {
+      throw new Error("Phải cung cấp ít nhất một trường để cập nhật class");
+    }
+
+    return true;
+  }),
+
+  body("name")
+    .optional()
+    .trim()
+    .notEmpty()
+    .withMessage("Tên class không được để trống")
+    .isLength({ min: 2, max: 100 })
+    .withMessage("Tên class phải từ 2 đến 100 ký tự"),
+
+  body("description").optional().trim(),
+
+  body("startDate")
+    .optional()
+    .isISO8601()
+    .withMessage("Ngày bắt đầu không đúng định dạng"),
+
+  body("endDate")
+    .optional()
+    .isISO8601()
+    .withMessage("Ngày kết thúc không đúng định dạng"),
+
+  body("mentorId")
+    .optional()
+    .isInt({ min: 1 })
+    .withMessage("ID mentor phải là số nguyên dương"),
+];
+
+export const memberIdParamRules = [
+  param("memberId")
+    .trim()
+    .notEmpty()
+    .withMessage("ID thành viên không được để trống")
+    .isInt({ min: 1 })
+    .withMessage("ID thành viên phải là số nguyên dương"),
+];
+
+export const addClassMemberRules = [
+  body("memberId")
+    .notEmpty()
+    .withMessage("ID thành viên không được để trống")
+    .isInt({ min: 1 })
+    .withMessage("ID thành viên phải là số nguyên dương"),
+];
+
+export const assignMentorRules = [
+  body("mentorId")
+    .notEmpty()
+    .withMessage("ID mentor không được để trống")
+    .isInt({ min: 1 })
+    .withMessage("ID mentor phải là số nguyên dương"),
+];
