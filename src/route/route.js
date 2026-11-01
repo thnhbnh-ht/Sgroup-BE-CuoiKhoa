@@ -9,6 +9,6 @@ const router = Router();
 router.use("/auth", authRouter);
 router.use("/users", userRouter);
 router.use("/classes", classRouter);
-router.use("/", lessonRoute);
+router.use("/lessons", lessonRoute);
 
 export default router;

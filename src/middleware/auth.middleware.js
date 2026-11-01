@@ -5,14 +5,18 @@ export const authenticateToken = (req, res, next) => {
   const authHeader = req.headers["authorization"];
 
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    throw new UnauthorizedError("Bạn chưa đăng nhập! Vui lòng cung cấp token hợp lệ.");
+    throw new UnauthorizedError("Bạn chưa đăng nhập! Vui lòng cung cấp token hợp lệ");
   }
 
   const token = authHeader.split(" ")[1];
 
   try {
     const decoded = verifyToken(token);
-    req.user = decoded;
+    
+    req.user = {
+      ...decoded,
+      roles: decoded.roles || (decoded.role ? [decoded.role] : []),
+    };
 
     next();
   } catch (error) {
@@ -24,7 +28,7 @@ export const authenticateToken = (req, res, next) => {
 };
 
 export const requireAdmin = (req, res, next) => {
-  if (req.user && req.user.role === "ADMIN") {
+  if (req.user && (req.user.role === "ADMIN" || req.user.roles?.includes("ADMIN"))) {
     return next();
   }
   return res.status(403).json({

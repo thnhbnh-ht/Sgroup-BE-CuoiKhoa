@@ -1,61 +1,54 @@
 import * as lessonService from "../service/lesson.service.js";
+import catchAsync from "../utils/catchAsync.js";
+import { sendSuccess } from "../utils/responseHelper.js";
 
-export const createLesson = async (req, res, next) => {
-    try {
-        const { classId } = req.params;
-        const userId = req.user.id;
-        const userRole = req.user.role;
-        
-        const lesson = await lessonService.createLesson(classId, req.body, userId, userRole);
-        res.status(201).json({
-            message: "Tạo bài học thành công",
-            data: lesson
-        });
-    } catch (error) {
-        next(error);
-    }
-};
+export const getLessonsByClassId = catchAsync(async (req, res) => {
+  const lessons = await lessonService.getLessonsByClassId(
+    req.params.id,
+    req.user,
+  );
+  return sendSuccess(res, 200, "Lấy danh sách lesson thành công!", lessons);
+});
 
-export const getLessonsByClass = async (req, res, next) => {
-    try {
-        const { classId } = req.params;
-        const userId = req.user.id;
-        const userRole = req.user.role;
+export const getLessonById = catchAsync(async (req, res) => {
+  const lesson = await lessonService.getLessonById(req.params.id, req.user);
+  return sendSuccess(res, 200, "Lấy dữ liệu lesson thành công", lesson);
+});
 
-        const lessons = await lessonService.getLessonsByClass(classId, userId, userRole);
-        res.status(200).json({
-            data: lessons
-        });
-    } catch (error) {
-        next(error);
-    }
-};
+export const createLesson = catchAsync(async (req, res) => {
+  const lesson = await lessonService.createLesson(
+    {
+      ...req.body,
+      classId: req.params.id,
+    },
+    req.user,
+  );
+  return sendSuccess(res, 201, "Tạo lesson thành công!", lesson);
+});
 
-export const completeLesson = async (req, res, next) => {
-    try {
-        const { id: lessonId } = req.params;
-        const userId = req.user.id;
+export const updateLesson = catchAsync(async (req, res) => {
+  const lesson = await lessonService.updateLesson(
+    req.params.id,
+    req.body,
+    req.user,
+  );
+  return sendSuccess(res, 200, "Cập nhật lesson thành công!", lesson);
+});
 
-        const progress = await lessonService.completeLesson(lessonId, userId);
-        res.status(200).json({
-            message: "Đã hoàn thành bài học",
-            data: progress
-        });
-    } catch (error) {
-        next(error);
-    }
-};
+export const deleteLesson = catchAsync(async (req, res) => {
+  const lesson = await lessonService.deleteLesson(req.params.id, req.user);
+  return sendSuccess(res, 200, "Xóa lesson thành công!", lesson);
+});
 
-export const getLearningProgress = async (req, res, next) => {
-    try {
-        const { classId } = req.params;
-        const userId = req.user.id;
+export const completeLesson = catchAsync(async (req, res) => {
+  const progress = await lessonService.completeLesson(req.params.id, req.user);
+  return sendSuccess(res, 200, "Hoàn thành lesson thành công!", progress);
+});
 
-        const progressData = await lessonService.getLearningProgress(classId, userId);
-        res.status(200).json({
-            data: progressData
-        });
-    } catch (error) {
-        next(error);
-    }
-};
+export const getClassProgress = catchAsync(async (req, res) => {
+  const progressData = await lessonService.getClassProgress(
+    req.params.id,
+    req.user,
+  );
+  return sendSuccess(res, 200, "Lấy tiến độ lesson thành công!", progressData);
+});

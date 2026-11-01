@@ -33,10 +33,14 @@ export const login = async ({ email, password }) => {
     throw new UnauthorizedError("Email hoặc mật khẩu không chính xác!");
   }
 
+  const userRoles = Array.isArray(user.roles) 
+    ? user.roles 
+    : [user.role || "MEMBER"];
+
   const tokenPayload = {
     id: user.id,
     email: user.email,
-    role: user.role,
+    roles: userRoles,
   };
 
   const accessToken = generateToken(tokenPayload);
@@ -46,7 +50,7 @@ export const login = async ({ email, password }) => {
       id: user.id,
       name: user.name,
       email: user.email,
-      role: user.role,
+      roles: userRoles,
     },
     accessToken,
   };
