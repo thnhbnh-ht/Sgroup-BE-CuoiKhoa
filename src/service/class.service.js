@@ -64,7 +64,7 @@ export const deleteClass = async (id) => {
   return await classRepository.deleteById(id);
 };
 
-export const getClassMembers = async (classId) => {
+export const getMembersOfClass = async (classId) => {
   const classData = await classRepository.findById(classId);
 
   if (!classData) {

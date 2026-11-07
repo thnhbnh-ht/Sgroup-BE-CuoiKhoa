@@ -66,7 +66,7 @@ router.get(
   authenticateToken,
   requirePermission("CLASS_READ"),
   validate(classIdParamRules),
-  classController.getClassMembers,
+  classController.getMembersOfClass,
 );
 
 router.post(

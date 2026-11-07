@@ -32,8 +32,8 @@ export const deleteClass = catchAsync(async (req, res) => {
   return sendSuccess(res, 200, "Xóa class thành công", deletedClass);
 });
 
-export const getClassMembers = catchAsync(async (req, res) => {
-  const members = await classService.getClassMembers(req.params.id);
+export const getMembersOfClass = catchAsync(async (req, res) => {
+  const members = await classService.getMembersOfClass(req.params.id);
 
   return sendSuccess(res, 200, "Lấy danh sách thành viên thành công", members);
 });
