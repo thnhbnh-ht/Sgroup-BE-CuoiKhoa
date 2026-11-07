@@ -233,3 +233,69 @@ export const assignMentorRules = [
     .isInt({ min: 1 })
     .withMessage("ID mentor phải là số nguyên dương"),
 ];
+
+export const createLessonRules = [
+  body("title")
+    .notEmpty()
+    .withMessage("Tên lesson không được để trống")
+    .isString()
+    .withMessage("Tên lesson phải là chuỗi"),
+
+  body("content")
+    .notEmpty()
+    .withMessage("Nội dung lesson không được để trống")
+    .isString()
+    .withMessage("Nội dung lesson phải là chuỗi"),
+
+  body("lessonOrder")
+    .notEmpty()
+    .withMessage("Thứ tự lesson không được để trống")
+    .isInt({ min: 0 })
+    .withMessage("Thứ tự lesson phải là số nguyên >= 0"),
+];
+
+export const lessonIdParamRules = [
+  param("id")
+    .trim()
+    .notEmpty()
+    .withMessage("ID lesson không được để trống")
+    .isInt({ min: 1 })
+    .withMessage("ID lesson phải là số nguyên dương"),
+];
+
+export const updateLessonRules = [
+  body().custom((value, { req }) => {
+    const allowedFields = ["title", "content", "lessonOrder"];
+
+    const hasAllowedField = Object.keys(req.body).some((key) =>
+      allowedFields.includes(key),
+    );
+
+    if (!hasAllowedField) {
+      throw new Error("Phải cung cấp ít nhất một trường để cập nhật lesson");
+    }
+
+    return true;
+  }),
+
+  body("title")
+    .optional()
+    .trim()
+    .notEmpty()
+    .withMessage("Tên lesson không được để trống")
+    .isString()
+    .withMessage("Tên lesson phải là chuỗi"),
+
+  body("content")
+    .optional()
+    .trim()
+    .notEmpty()
+    .withMessage("Nội dung lesson không được để trống")
+    .isString()
+    .withMessage("Nội dung lesson phải là chuỗi"),
+
+  body("lessonOrder")
+    .optional()
+    .isInt({ min: 0 })
+    .withMessage("Thứ tự lesson phải là số nguyên >= 0"),
+];
