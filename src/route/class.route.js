@@ -1,5 +1,6 @@
 import { Router } from "express";
 import * as classController from "../controller/class.controller.js";
+import * as lessonController from "../controller/lesson.controller.js";
 import {
   validate,
   classIdParamRules,
@@ -8,6 +9,7 @@ import {
   addClassMemberRules,
   memberIdParamRules,
   assignMentorRules,
+  createLessonRules,
 } from "../middleware/validate.js";
 import { authenticateToken } from "../middleware/auth.middleware.js";
 import { requirePermission } from "../middleware/rbac.middleware.js";
@@ -83,6 +85,27 @@ router.delete(
   requirePermission("CLASS_MEMBER_REMOVE"),
   validate([...classIdParamRules, ...memberIdParamRules]),
   classController.removeClassMember,
+);
+
+router.get(
+  "/:id/lessons",
+  authenticateToken,
+  validate(classIdParamRules),
+  lessonController.getLessonsByClassId,
+);
+
+router.post(
+  "/:id/lessons",
+  authenticateToken,
+  validate([...classIdParamRules, ...createLessonRules]),
+  lessonController.createLesson,
+);
+
+router.get(
+  "/:id/progress",
+  authenticateToken,
+  validate(classIdParamRules),
+  lessonController.getClassProgress,
 );
 
 export default router;
