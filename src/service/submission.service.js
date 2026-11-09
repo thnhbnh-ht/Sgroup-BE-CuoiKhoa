@@ -1,5 +1,4 @@
 import * as submissionRepository from "../repository/submission.repository.js";
-import * as assignmentRepository from "../repository/assignment.repository.js";
 import * as classRepository from "../repository/class.repository.js";
 import {
   NotFoundError,
@@ -18,7 +17,7 @@ export const getSubmissionById = async (id, requestingUser) => {
     return submission;
   }
 
-  const assignment = await assignmentRepository.findById(
+  const assignment = await submissionRepository.findAssignmentById(
     submission.assignment_id,
   );
 
@@ -27,7 +26,7 @@ export const getSubmissionById = async (id, requestingUser) => {
     requestingUser.id,
   );
 
-  const isOwner = submission.member_id === requestingUser.id;
+  const isOwner = Number(submission.member_id) === Number(requestingUser.id);
 
   if (!isMentor && !isOwner) {
     throw new ForbiddenError("Bạn không có quyền xem bài nộp này!");
@@ -41,7 +40,7 @@ export const getSubmissionsByAssignmentId = async (
   requestingUser,
   options = {},
 ) => {
-  const assignment = await assignmentRepository.findById(assignmentId);
+  const assignment = await submissionRepository.findAssignmentById(assignmentId);
 
   if (!assignment) {
     throw new NotFoundError("Assignment không tồn tại!");
@@ -60,14 +59,17 @@ export const getSubmissionsByAssignmentId = async (
     }
   }
 
-  return await submissionRepository.findAllByAssignmentId(assignmentId, options);
+  return await submissionRepository.findAllByAssignmentId(
+    assignmentId,
+    options,
+  );
 };
 
 export const getMySubmissionByAssignment = async (
   assignmentId,
   requestingUser,
 ) => {
-  const assignment = await assignmentRepository.findById(assignmentId);
+  const assignment = await submissionRepository.findAssignmentById(assignmentId);
 
   if (!assignment) {
     throw new NotFoundError("Assignment không tồn tại!");
@@ -99,7 +101,7 @@ export const getSubmissionsByMemberId = async (memberId, options = {}) => {
 };
 
 export const submitAssignment = async (assignmentId, data, requestingUser) => {
-  const assignment = await assignmentRepository.findById(assignmentId);
+  const assignment = await submissionRepository.findAssignmentById(assignmentId);
 
   if (!assignment) {
     throw new NotFoundError("Assignment không tồn tại!");
@@ -135,7 +137,7 @@ export const reviewSubmission = async (id, data, requestingUser) => {
     throw new NotFoundError("Bài nộp không tồn tại!");
   }
 
-  const assignment = await assignmentRepository.findById(
+  const assignment = await submissionRepository.findAssignmentById(
     submission.assignment_id,
   );
 

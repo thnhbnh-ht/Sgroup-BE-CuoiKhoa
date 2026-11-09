@@ -148,6 +148,13 @@ export const findAllByAssignmentId = async (
   };
 };
 
+export const findAssignmentById = async (id) => {
+  const result = await pool.query(`SELECT * FROM assignments WHERE id = $1`, [
+    id,
+  ]);
+  return result.rows[0] || null;
+};
+
 export const findAllByMemberId = async (
   memberId,
   { page = 1, limit = 10, classId, status } = {},

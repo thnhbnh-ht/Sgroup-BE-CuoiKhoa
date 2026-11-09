@@ -4,6 +4,8 @@ import {
   validate,
   submissionIdParamRules,
   reviewSubmissionRules,
+  assignmentIdParamRules,
+  submitAssignmentRules,
 } from "../middleware/validate.js";
 import { authenticateToken } from "../middleware/auth.middleware.js";
 import { requirePermission } from "../middleware/rbac.middleware.js";
@@ -11,14 +13,14 @@ import { requirePermission } from "../middleware/rbac.middleware.js";
 const router = Router();
 
 router.get(
-  "/me",
+  "/submissions/me",
   authenticateToken,
   requirePermission("SUBMISSION_READ_OWN"),
   submissionController.getMySubmissions,
 );
 
 router.get(
-  "/:id",
+  "/submissions/:id",
   authenticateToken,
   requirePermission("SUBMISSION_READ_OWN"),
   validate(submissionIdParamRules),
@@ -26,10 +28,33 @@ router.get(
 );
 
 router.patch(
-  "/:id/review",
+  "/submissions/:id/review",
   authenticateToken,
   validate([...submissionIdParamRules, ...reviewSubmissionRules]),
   submissionController.reviewSubmission,
+);
+
+router.get(
+  "/assignments/:id/submissions/me",
+  authenticateToken,
+  requirePermission("SUBMISSION_READ_OWN"),
+  validate(assignmentIdParamRules),
+  submissionController.getMySubmissionByAssignment,
+);
+
+router.post(
+  "/assignments/:id/submissions",
+  authenticateToken,
+  requirePermission("SUBMISSION_CREATE"),
+  validate([...assignmentIdParamRules, ...submitAssignmentRules]),
+  submissionController.submitAssignment,
+);
+
+router.get(
+  "/assignments/:id/submissions",
+  authenticateToken,
+  validate(assignmentIdParamRules),
+  submissionController.getSubmissionsByAssignmentId,
 );
 
 export default router;
