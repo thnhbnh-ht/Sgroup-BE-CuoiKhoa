@@ -1,6 +1,7 @@
 import { Router } from "express";
 import * as classController from "../controller/class.controller.js";
 import * as lessonController from "../controller/lesson.controller.js";
+import * as assignmentController from "../controller/assignment.controller.js";
 import {
   validate,
   classIdParamRules,
@@ -10,6 +11,7 @@ import {
   memberIdParamRules,
   assignMentorRules,
   createLessonRules,
+  createAssignmentRules,
 } from "../middleware/validate.js";
 import { authenticateToken } from "../middleware/auth.middleware.js";
 import { requirePermission } from "../middleware/rbac.middleware.js";
@@ -108,4 +110,17 @@ router.get(
   lessonController.getClassProgress,
 );
 
+router.get(
+  "/:id/assignments",
+  authenticateToken,
+  validate(classIdParamRules),
+  assignmentController.getAssignmentsByClassId
+);
+
+router.post(
+  "/:id/assignments",
+  authenticateToken,
+  validate([...classIdParamRules, ...createAssignmentRules]),
+  assignmentController.createAssignment
+);
 export default router;

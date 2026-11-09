@@ -299,3 +299,74 @@ export const updateLessonRules = [
     .isInt({ min: 0 })
     .withMessage("Thứ tự lesson phải là số nguyên >= 0"),
 ];
+export const createAssignmentRules = [
+  body("title")
+    .trim()
+    .notEmpty()
+    .withMessage("Tiêu đề bài tập không được để trống")
+    .isString()
+    .withMessage("Tiêu đề bài tập phải là chuỗi"),
+
+  body("description").optional().trim().isString(),
+
+  body("deadline")
+    .notEmpty()
+    .withMessage("Deadline không được để trống")
+    .isISO8601()
+    .withMessage("Deadline không đúng định dạng ISO8601"),
+
+  body("maximumScore")
+    .notEmpty()
+    .withMessage("Điểm tối đa không được để trống")
+    .isFloat({ min: 0 })
+    .withMessage("Điểm tối đa phải là số >= 0"),
+];
+
+export const updateAssignmentRules = [
+  body().custom((value, { req }) => {
+    const allowedFields = ["title", "description", "deadline", "maximumScore"];
+    const hasAllowedField = Object.keys(req.body).some((key) =>
+      allowedFields.includes(key)
+    );
+    if (!hasAllowedField) {
+      throw new Error("Phải cung cấp ít nhất một trường để cập nhật bài tập");
+    }
+    return true;
+  }),
+  body("title").optional().trim().notEmpty().isString(),
+  body("description").optional().trim().isString(),
+  body("deadline").optional().isISO8601(),
+  body("maximumScore").optional().isFloat({ min: 0 }),
+];
+
+export const assignmentIdParamRules = [
+  param("id")
+    .trim()
+    .notEmpty()
+    .withMessage("ID bài tập không được để trống")
+    .isInt({ min: 1 })
+    .withMessage("ID bài tập phải là số nguyên dương"),
+];
+
+export const createSubmissionRules = [
+  body("content").optional().trim().isString(),
+  body("repositoryUrl").optional().trim().isURL().withMessage("Repository URL không đúng định dạng"),
+];
+
+export const reviewSubmissionRules = [
+  body("score")
+    .notEmpty()
+    .withMessage("Điểm số không được để trống")
+    .isFloat({ min: 0 })
+    .withMessage("Điểm số phải là số >= 0"),
+  body("feedback").optional().trim().isString(),
+];
+
+export const submissionIdParamRules = [
+  param("id")
+    .trim()
+    .notEmpty()
+    .withMessage("ID bài nộp không được để trống")
+    .isInt({ min: 1 })
+    .withMessage("ID bài nộp phải là số nguyên dương"),
+];
