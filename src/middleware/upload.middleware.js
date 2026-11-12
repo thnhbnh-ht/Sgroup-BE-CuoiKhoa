@@ -20,11 +20,11 @@ export const uploadSingle = (req, res, next) => {
         const maxMB = Math.round(config.r2.maxFileSize / (1024 * 1024));
         return next(
           new BadRequestError(
-            `Kích thước file vượt quá giới hạn cho phép (${maxMB}MB)!`,
+            `File size exceeds the allowed limit (${maxMB}MB)!`,
           ),
         );
       }
-      return next(new BadRequestError(`Lỗi upload file: ${err.message}`));
+      return next(new BadRequestError(`File upload error: ${err.message}`));
     }
 
     if (err) {
@@ -34,4 +34,3 @@ export const uploadSingle = (req, res, next) => {
     return next();
   });
 };
-

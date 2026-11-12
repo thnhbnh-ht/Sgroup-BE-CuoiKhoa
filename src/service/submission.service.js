@@ -11,7 +11,7 @@ export const getSubmissionById = async (id, requestingUser) => {
   const submission = await submissionRepository.findById(id);
 
   if (!submission) {
-    throw new NotFoundError("Bài nộp không tồn tại!");
+    throw new NotFoundError("Submission does not exist!");
   }
 
   if (requestingUser.roles.includes("ADMIN")) {
@@ -30,7 +30,7 @@ export const getSubmissionById = async (id, requestingUser) => {
   const isOwner = Number(submission.member_id) === Number(requestingUser.id);
 
   if (!isMentor && !isOwner) {
-    throw new ForbiddenError("Bạn không có quyền xem bài nộp này!");
+    throw new ForbiddenError("You do not have permission to view this submission!");
   }
 
   return submission;
@@ -44,7 +44,7 @@ export const getSubmissionsByAssignmentId = async (
   const assignment = await submissionRepository.findAssignmentById(assignmentId);
 
   if (!assignment) {
-    throw new NotFoundError("Assignment không tồn tại!");
+    throw new NotFoundError("Assignment does not exist!");
   }
 
   if (!requestingUser.roles.includes("ADMIN")) {
@@ -55,7 +55,7 @@ export const getSubmissionsByAssignmentId = async (
 
     if (!isMentor) {
       throw new ForbiddenError(
-        "Bạn không có quyền xem danh sách bài nộp của assignment này!",
+        "You do not have permission to view submissions for this assignment!",
       );
     }
   }
@@ -73,7 +73,7 @@ export const getMySubmissionByAssignment = async (
   const assignment = await submissionRepository.findAssignmentById(assignmentId);
 
   if (!assignment) {
-    throw new NotFoundError("Assignment không tồn tại!");
+    throw new NotFoundError("Assignment does not exist!");
   }
 
   const isMember = await classRepository.isMemberOfClass(
@@ -82,7 +82,7 @@ export const getMySubmissionByAssignment = async (
   );
 
   if (!isMember && !requestingUser.roles.includes("ADMIN")) {
-    throw new ForbiddenError("Bạn không phải là thành viên của class này!");
+    throw new ForbiddenError("You are not a member of this class!");
   }
 
   const submission = await submissionRepository.findByAssignmentAndMember(
@@ -91,7 +91,7 @@ export const getMySubmissionByAssignment = async (
   );
 
   if (!submission) {
-    throw new NotFoundError("Bạn chưa nộp bài cho assignment này!");
+    throw new NotFoundError("You have not submitted for this assignment yet!");
   }
 
   return submission;
@@ -110,7 +110,7 @@ export const submitAssignment = async (
   const assignment = await submissionRepository.findAssignmentById(assignmentId);
 
   if (!assignment) {
-    throw new NotFoundError("Assignment không tồn tại!");
+    throw new NotFoundError("Assignment does not exist!");
   }
 
   const isMember = await classRepository.isMemberOfClass(
@@ -120,12 +120,12 @@ export const submitAssignment = async (
 
   if (!isMember) {
     throw new ForbiddenError(
-      "Chỉ thành viên của class mới được phép nộp bài tập này!",
+      "Only class members are allowed to submit this assignment!",
     );
   }
 
   if (assignment.deadline && new Date() > new Date(assignment.deadline)) {
-    throw new BadRequestError("Đã quá thời hạn nộp bài tập này!");
+    throw new BadRequestError("The deadline for this assignment has passed!");
   }
 
   let uploadedFile = null;
@@ -156,7 +156,7 @@ export const reviewSubmission = async (id, data, requestingUser) => {
   const submission = await submissionRepository.findById(id);
 
   if (!submission) {
-    throw new NotFoundError("Bài nộp không tồn tại!");
+    throw new NotFoundError("Submission does not exist!");
   }
 
   const assignment = await submissionRepository.findAssignmentById(
@@ -171,14 +171,14 @@ export const reviewSubmission = async (id, data, requestingUser) => {
 
     if (!isMentor) {
       throw new ForbiddenError(
-        "Bạn không có quyền chấm bài nộp của class này!",
+        "You do not have permission to review submissions for this class!",
       );
     }
   }
 
   if (Number(data.score) > Number(assignment.maximum_score)) {
     throw new BadRequestError(
-      `Điểm chấm không được vượt quá điểm tối đa (${assignment.maximum_score})!`,
+      `Score cannot exceed the maximum score (${assignment.maximum_score})!`,
     );
   }
 

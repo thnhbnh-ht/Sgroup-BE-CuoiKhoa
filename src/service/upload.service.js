@@ -19,7 +19,7 @@ const sanitizeFileName = (fileName) => {
 
 export const uploadFile = async (file, userId) => {
   if (!file) {
-    throw new BadRequestError("Vui lòng chọn file để tải lên!");
+    throw new BadRequestError("Please select a file to upload!");
   }
 
   const safeName = sanitizeFileName(file.originalname || "file");
@@ -52,7 +52,7 @@ export const uploadFile = async (file, userId) => {
 export const getUploadById = async (id) => {
   const upload = await uploadRepository.findById(id);
   if (!upload) {
-    throw new NotFoundError("File không tồn tại!");
+    throw new NotFoundError("File does not exist!");
   }
   return upload;
 };
@@ -60,4 +60,3 @@ export const getUploadById = async (id) => {
 export const getMyUploads = async (userId) => {
   return await uploadRepository.findAllByUserId(userId);
 };
-

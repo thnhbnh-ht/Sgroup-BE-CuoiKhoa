@@ -12,7 +12,7 @@ export const getMySubmissions = catchAsync(async (req, res) => {
   return sendSuccess(
     res,
     200,
-    "Lấy danh sách bài nộp thành công!",
+    "Fetched submissions successfully!",
     result,
   );
 });
@@ -23,7 +23,7 @@ export const getSubmissionById = catchAsync(async (req, res) => {
     req.user,
   );
 
-  return sendSuccess(res, 200, "Lấy thông tin bài nộp thành công!", submission);
+  return sendSuccess(res, 200, "Fetched submission details successfully!", submission);
 });
 
 export const submitAssignment = catchAsync(async (req, res) => {
@@ -34,7 +34,7 @@ export const submitAssignment = catchAsync(async (req, res) => {
     req.file,
   );
 
-  return sendSuccess(res, 201, "Nộp bài thành công!", submission);
+  return sendSuccess(res, 201, "Assignment submitted successfully!", submission);
 });
 
 export const getSubmissionsByAssignmentId = catchAsync(async (req, res) => {
@@ -48,7 +48,7 @@ export const getSubmissionsByAssignmentId = catchAsync(async (req, res) => {
   return sendSuccess(
     res,
     200,
-    "Lấy danh sách bài nộp của assignment thành công!",
+    "Fetched assignment submissions successfully!",
     result,
   );
 });
@@ -59,7 +59,7 @@ export const getMySubmissionByAssignment = catchAsync(async (req, res) => {
     req.user,
   );
 
-  return sendSuccess(res, 200, "Lấy bài nộp của bạn thành công!", submission);
+  return sendSuccess(res, 200, "Fetched your submission successfully!", submission);
 });
 
 export const reviewSubmission = catchAsync(async (req, res) => {
@@ -69,5 +69,5 @@ export const reviewSubmission = catchAsync(async (req, res) => {
     req.user,
   );
 
-  return sendSuccess(res, 200, "Chấm bài thành công!", submission);
+  return sendSuccess(res, 200, "Submission reviewed successfully!", submission);
 });

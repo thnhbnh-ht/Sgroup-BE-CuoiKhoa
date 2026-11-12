@@ -15,7 +15,7 @@ export const validate = (rules) => {
       message: err.msg,
     }));
 
-    const error = new BadRequestError("Dữ liệu không hợp lệ!");
+    const error = new BadRequestError("Invalid data!");
     error.errors = formattedErrors;
 
     return next(error);
@@ -26,25 +26,25 @@ export const userIdParamRules = [
   param("id")
     .trim()
     .notEmpty()
-    .withMessage("ID người dùng không được để trống")
+    .withMessage("User ID is required")
     .isInt({ min: 1 })
-    .withMessage("ID người dùng phải là số nguyên dương"),
+    .withMessage("User ID must be a positive integer"),
 ];
 
 export const createUserRules = [
   body("name")
     .trim()
     .notEmpty()
-    .withMessage("Tên người dùng không được để trống")
+    .withMessage("User name is required")
     .isLength({ min: 2, max: 50 })
-    .withMessage("Tên người dùng phải từ 2 đến 50 ký tự"),
+    .withMessage("User name must be between 2 and 50 characters"),
 
   body("email")
     .trim()
     .notEmpty()
-    .withMessage("Email không được để trống")
+    .withMessage("Email is required")
     .isEmail()
-    .withMessage("Email không đúng định dạng")
+    .withMessage("Invalid email format")
     .normalizeEmail(),
 ];
 
@@ -58,7 +58,7 @@ export const updateUserRules = [
 
     if (!hasAllowedField) {
       throw new Error(
-        "Phải cung cấp ít nhất một trường để cập nhật: name hoặc email",
+        "Must provide at least one field to update: name or email",
       );
     }
 
@@ -69,17 +69,17 @@ export const updateUserRules = [
     .optional()
     .trim()
     .notEmpty()
-    .withMessage("Tên người dùng không được để trống")
+    .withMessage("User name is required")
     .isLength({ min: 2, max: 50 })
-    .withMessage("Tên người dùng phải từ 2 đến 50 ký tự"),
+    .withMessage("User name must be between 2 and 50 characters"),
 
   body("email")
     .optional()
     .trim()
     .notEmpty()
-    .withMessage("Email không được để trống")
+    .withMessage("Email is required")
     .isEmail()
-    .withMessage("Email không đúng định dạng")
+    .withMessage("Invalid email format")
     .normalizeEmail(),
 ];
 
@@ -87,46 +87,46 @@ export const registerRules = [
   body("name")
     .trim()
     .notEmpty()
-    .withMessage("Tên không được để trống")
+    .withMessage("Name is required")
     .isLength({ min: 2, max: 50 })
-    .withMessage("Tên phải từ 2 đến 50 ký tự"),
+    .withMessage("Name must be between 2 and 50 characters"),
 
   body("email")
     .trim()
     .notEmpty()
-    .withMessage("Email không được để trống")
+    .withMessage("Email is required")
     .isEmail()
-    .withMessage("Email không đúng định dạng")
+    .withMessage("Invalid email format")
     .normalizeEmail(),
 
   body("password")
     .trim()
     .notEmpty()
-    .withMessage("Mật khẩu không được để trống")
+    .withMessage("Password is required")
     .isLength({ min: 6 })
-    .withMessage("Mật khẩu phải có tối thiểu 6 ký tự"),
+    .withMessage("Password must be at least 6 characters long"),
 ];
 
 export const loginRules = [
   body("email")
     .trim()
     .notEmpty()
-    .withMessage("Email không được để trống")
+    .withMessage("Email is required")
     .isEmail()
-    .withMessage("Email không đúng định dạng")
+    .withMessage("Invalid email format")
     .normalizeEmail(),
 
   body("password")
     .trim()
     .notEmpty()
-    .withMessage("Mật khẩu không được để trống"),
+    .withMessage("Password is required"),
 ];
 
 export const refreshTokenRules = [
   body().custom((value, { req }) => {
     const token = req.body?.refreshToken || req.body?.refresh_token;
     if (!token || typeof token !== "string" || token.trim() === "") {
-      throw new Error("Refresh token không được để trống");
+      throw new Error("Refresh token is required");
     }
     return true;
   }),
@@ -136,35 +136,35 @@ export const classIdParamRules = [
   param("id")
     .trim()
     .notEmpty()
-    .withMessage("ID class không được để trống")
+    .withMessage("Class ID is required")
     .isInt({ min: 1 })
-    .withMessage("ID class phải là số nguyên dương"),
+    .withMessage("Class ID must be a positive integer"),
 ];
 
 export const createClassRules = [
   body("name")
     .trim()
     .notEmpty()
-    .withMessage("Tên class không được để trống")
+    .withMessage("Class name is required")
     .isLength({ min: 2, max: 100 })
-    .withMessage("Tên class phải từ 2 đến 100 ký tự"),
+    .withMessage("Class name must be between 2 and 100 characters"),
 
   body("description").optional().trim(),
 
   body("startDate")
     .optional()
     .isISO8601()
-    .withMessage("Ngày bắt đầu không đúng định dạng"),
+    .withMessage("Invalid start date format"),
 
   body("endDate")
     .optional()
     .isISO8601()
-    .withMessage("Ngày kết thúc không đúng định dạng"),
+    .withMessage("Invalid end date format"),
 
   body("mentorId")
     .optional()
     .isInt({ min: 1 })
-    .withMessage("ID mentor phải là số nguyên dương"),
+    .withMessage("Mentor ID must be a positive integer"),
 ];
 
 export const updateClassRules = [
@@ -182,7 +182,7 @@ export const updateClassRules = [
     );
 
     if (!hasAllowedField) {
-      throw new Error("Phải cung cấp ít nhất một trường để cập nhật class");
+      throw new Error("Must provide at least one field to update class");
     }
 
     return true;
@@ -192,80 +192,80 @@ export const updateClassRules = [
     .optional()
     .trim()
     .notEmpty()
-    .withMessage("Tên class không được để trống")
+    .withMessage("Class name is required")
     .isLength({ min: 2, max: 100 })
-    .withMessage("Tên class phải từ 2 đến 100 ký tự"),
+    .withMessage("Class name must be between 2 and 100 characters"),
 
   body("description").optional().trim(),
 
   body("startDate")
     .optional()
     .isISO8601()
-    .withMessage("Ngày bắt đầu không đúng định dạng"),
+    .withMessage("Invalid start date format"),
 
   body("endDate")
     .optional()
     .isISO8601()
-    .withMessage("Ngày kết thúc không đúng định dạng"),
+    .withMessage("Invalid end date format"),
 
   body("mentorId")
     .optional()
     .isInt({ min: 1 })
-    .withMessage("ID mentor phải là số nguyên dương"),
+    .withMessage("Mentor ID must be a positive integer"),
 ];
 
 export const memberIdParamRules = [
   param("memberId")
     .trim()
     .notEmpty()
-    .withMessage("ID thành viên không được để trống")
+    .withMessage("Member ID is required")
     .isInt({ min: 1 })
-    .withMessage("ID thành viên phải là số nguyên dương"),
+    .withMessage("Member ID must be a positive integer"),
 ];
 
 export const addClassMemberRules = [
   body("memberId")
     .notEmpty()
-    .withMessage("ID thành viên không được để trống")
+    .withMessage("Member ID is required")
     .isInt({ min: 1 })
-    .withMessage("ID thành viên phải là số nguyên dương"),
+    .withMessage("Member ID must be a positive integer"),
 ];
 
 export const assignMentorRules = [
   body("mentorId")
     .notEmpty()
-    .withMessage("ID mentor không được để trống")
+    .withMessage("Mentor ID is required")
     .isInt({ min: 1 })
-    .withMessage("ID mentor phải là số nguyên dương"),
+    .withMessage("Mentor ID must be a positive integer"),
 ];
 
 export const createLessonRules = [
   body("title")
     .notEmpty()
-    .withMessage("Tên lesson không được để trống")
+    .withMessage("Lesson title is required")
     .isString()
-    .withMessage("Tên lesson phải là chuỗi"),
+    .withMessage("Lesson title must be a string"),
 
   body("content")
     .notEmpty()
-    .withMessage("Nội dung lesson không được để trống")
+    .withMessage("Lesson content is required")
     .isString()
-    .withMessage("Nội dung lesson phải là chuỗi"),
+    .withMessage("Lesson content must be a string"),
 
   body("lessonOrder")
     .notEmpty()
-    .withMessage("Thứ tự lesson không được để trống")
+    .withMessage("Lesson order is required")
     .isInt({ min: 0 })
-    .withMessage("Thứ tự lesson phải là số nguyên >= 0"),
+    .withMessage("Lesson order must be an integer >= 0"),
 ];
 
 export const lessonIdParamRules = [
   param("id")
     .trim()
     .notEmpty()
-    .withMessage("ID lesson không được để trống")
+    .withMessage("Lesson ID is required")
     .isInt({ min: 1 })
-    .withMessage("ID lesson phải là số nguyên dương"),
+    .withMessage("Lesson ID must be a positive integer"),
 ];
 
 export const updateLessonRules = [
@@ -277,7 +277,7 @@ export const updateLessonRules = [
     );
 
     if (!hasAllowedField) {
-      throw new Error("Phải cung cấp ít nhất một trường để cập nhật lesson");
+      throw new Error("Must provide at least one field to update lesson");
     }
 
     return true;
@@ -287,56 +287,56 @@ export const updateLessonRules = [
     .optional()
     .trim()
     .notEmpty()
-    .withMessage("Tên lesson không được để trống")
+    .withMessage("Lesson title is required")
     .isString()
-    .withMessage("Tên lesson phải là chuỗi"),
+    .withMessage("Lesson title must be a string"),
 
   body("content")
     .optional()
     .trim()
     .notEmpty()
-    .withMessage("Nội dung lesson không được để trống")
+    .withMessage("Lesson content is required")
     .isString()
-    .withMessage("Nội dung lesson phải là chuỗi"),
+    .withMessage("Lesson content must be a string"),
 
   body("lessonOrder")
     .optional()
     .isInt({ min: 0 })
-    .withMessage("Thứ tự lesson phải là số nguyên >= 0"),
+    .withMessage("Lesson order must be an integer >= 0"),
 ];
 
 export const assignmentIdParamRules = [
   param("id")
     .trim()
     .notEmpty()
-    .withMessage("ID assignment không được để trống")
+    .withMessage("Assignment ID is required")
     .isInt({ min: 1 })
-    .withMessage("ID assignment phải là số nguyên dương"),
+    .withMessage("Assignment ID must be a positive integer"),
 ];
 
 export const createAssignmentRules = [
   body("title")
     .notEmpty()
-    .withMessage("Tên assignment không được để trống")
+    .withMessage("Assignment title is required")
     .isString()
-    .withMessage("Tên assignment phải là chuỗi"),
+    .withMessage("Assignment title must be a string"),
 
   body("description")
     .optional()
     .isString()
-    .withMessage("Mô tả assignment phải là chuỗi"),
+    .withMessage("Assignment description must be a string"),
 
   body("deadline")
     .notEmpty()
-    .withMessage("Deadline không được để trống")
+    .withMessage("Deadline is required")
     .isISO8601()
-    .withMessage("Deadline phải có định dạng ngày giờ hợp lệ"),
+    .withMessage("Deadline must be a valid date format"),
 
   body("maximumScore")
     .notEmpty()
-    .withMessage("Điểm tối đa không được để trống")
+    .withMessage("Maximum score is required")
     .isFloat({ min: 0.01 })
-    .withMessage("Điểm tối đa phải lớn hơn 0"),
+    .withMessage("Maximum score must be greater than 0"),
 ];
 
 export const updateAssignmentRules = [
@@ -349,7 +349,7 @@ export const updateAssignmentRules = [
 
     if (!hasAllowedField) {
       throw new Error(
-        "Phải cung cấp ít nhất một trường để cập nhật assignment",
+        "Must provide at least one field to update assignment",
       );
     }
 
@@ -360,33 +360,33 @@ export const updateAssignmentRules = [
     .optional()
     .trim()
     .notEmpty()
-    .withMessage("Tên assignment không được để trống")
+    .withMessage("Assignment title is required")
     .isString()
-    .withMessage("Tên assignment phải là chuỗi"),
+    .withMessage("Assignment title must be a string"),
 
   body("description")
     .optional()
     .isString()
-    .withMessage("Mô tả assignment phải là chuỗi"),
+    .withMessage("Assignment description must be a string"),
 
   body("deadline")
     .optional()
     .isISO8601()
-    .withMessage("Deadline phải có định dạng ngày giờ hợp lệ"),
+    .withMessage("Deadline must be a valid date format"),
 
   body("maximumScore")
     .optional()
     .isFloat({ min: 0.01 })
-    .withMessage("Điểm tối đa phải lớn hơn 0"),
+    .withMessage("Maximum score must be greater than 0"),
 ];
 
 export const submissionIdParamRules = [
   param("id")
     .trim()
     .notEmpty()
-    .withMessage("ID bài nộp không được để trống")
+    .withMessage("Submission ID is required")
     .isInt({ min: 1 })
-    .withMessage("ID bài nộp phải là số nguyên dương"),
+    .withMessage("Submission ID must be a positive integer"),
 ];
 
 export const submitAssignmentRules = [
@@ -406,7 +406,7 @@ export const submitAssignmentRules = [
 
     if (!hasAllowedField) {
       throw new Error(
-        "Phải cung cấp ít nhất nội dung bài làm (content), link bài nộp (repositoryUrl) hoặc file đính kèm (file)",
+        "Must provide at least content, repositoryUrl, or file",
       );
     }
 
@@ -417,25 +417,25 @@ export const submitAssignmentRules = [
     .optional()
     .trim()
     .isString()
-    .withMessage("Nội dung bài nộp phải là chuỗi"),
+    .withMessage("Submission content must be a string"),
 
   body("repositoryUrl")
     .optional()
     .trim()
     .isURL()
-    .withMessage("Link repository không đúng định dạng URL"),
+    .withMessage("Repository link must be a valid URL"),
 ];
 
 export const reviewSubmissionRules = [
   body("score")
     .notEmpty()
-    .withMessage("Điểm số không được để trống")
+    .withMessage("Score is required")
     .isFloat({ min: 0 })
-    .withMessage("Điểm số phải là số lớn hơn hoặc bằng 0"),
+    .withMessage("Score must be greater than or equal to 0"),
 
   body("feedback")
     .optional()
     .trim()
     .isString()
-    .withMessage("Nhận xét phải là chuỗi"),
+    .withMessage("Feedback must be a string"),
 ];

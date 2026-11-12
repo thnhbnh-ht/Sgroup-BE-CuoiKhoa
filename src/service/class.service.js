@@ -18,7 +18,7 @@ export const getClassById = async (id, requestingUser) => {
   const classData = await classRepository.findById(id);
 
   if (!classData) {
-    throw new NotFoundError("Class không tồn tại!");
+    throw new NotFoundError("Class does not exist!");
   }
 
   if (requestingUser.roles.includes("ADMIN")) {
@@ -29,7 +29,7 @@ export const getClassById = async (id, requestingUser) => {
   const isMentor = await classRepository.isMentorOfClass(id, requestingUser.id);
 
   if (!isMember && !isMentor) {
-    throw new ForbiddenError("Bạn không phải thành viên của class này!");
+    throw new ForbiddenError("You are not a member of this class!");
   }
 
   return classData;
@@ -48,7 +48,7 @@ export const updateClass = async (id, data) => {
   const classData = await classRepository.findById(id);
 
   if (!classData) {
-    throw new NotFoundError("Class không tồn tại!");
+    throw new NotFoundError("Class does not exist!");
   }
 
   return await classRepository.update(id, data);
@@ -58,7 +58,7 @@ export const deleteClass = async (id) => {
   const classData = await classRepository.findById(id);
 
   if (!classData) {
-    throw new NotFoundError("Class không tồn tại!");
+    throw new NotFoundError("Class does not exist!");
   }
 
   return await classRepository.deleteById(id);
@@ -68,7 +68,7 @@ export const getMembersOfClass = async (classId) => {
   const classData = await classRepository.findById(classId);
 
   if (!classData) {
-    throw new NotFoundError("Class không tồn tại!");
+    throw new NotFoundError("Class does not exist!");
   }
 
   return await classRepository.findMembersByClassId(classId);
@@ -78,19 +78,19 @@ export const addClassMember = async (classId, memberId) => {
   const classData = await classRepository.findById(classId);
 
   if (!classData) {
-    throw new NotFoundError("Class không tồn tại!");
+    throw new NotFoundError("Class does not exist!");
   }
 
   const member = await userRepository.findById(memberId);
 
   if (!member) {
-    throw new NotFoundError("Người dùng không tồn tại!");
+    throw new NotFoundError("User does not exist!");
   }
 
   const isMember = await classRepository.isMemberOfClass(classId, memberId);
 
   if (isMember) {
-    throw new ConflictError("Người dùng đã là thành viên của class!");
+    throw new ConflictError("User is already a member of the class!");
   }
 
   return await classRepository.addMember(classId, memberId);
@@ -100,19 +100,19 @@ export const removeClassMember = async (classId, memberId) => {
   const classData = await classRepository.findById(classId);
 
   if (!classData) {
-    throw new NotFoundError("Class không tồn tại!");
+    throw new NotFoundError("Class does not exist!");
   }
 
   const member = await userRepository.findById(memberId);
 
   if (!member) {
-    throw new NotFoundError("Người dùng không tồn tại!");
+    throw new NotFoundError("User does not exist!");
   }
 
   const isMember = await classRepository.isMemberOfClass(classId, memberId);
 
   if (!isMember) {
-    throw new ConflictError("Người dùng không là thành viên của class!");
+    throw new ConflictError("User is not a member of the class!");
   }
 
   return await classRepository.removeMember(classId, memberId);
@@ -122,13 +122,13 @@ export const assignMentor = async (classId, mentorId) => {
   const classData = await classRepository.findById(classId);
 
   if (!classData) {
-    throw new NotFoundError("Class không tồn tại!");
+    throw new NotFoundError("Class does not exist!");
   }
 
   const mentor = await userRepository.findById(mentorId);
 
   if (!mentor) {
-    throw new NotFoundError("Người dùng không tồn tại!");
+    throw new NotFoundError("User does not exist!");
   }
 
   return await classRepository.assignMentor(classId, mentorId);

@@ -8,12 +8,13 @@ import { hashPassword, comparePassword } from "../utils/password.helper.js";
 import {
   generateAccessToken,
   generateRefreshToken,
+  verifyRefreshToken, 
 } from "../utils/jwt.helper.js";
 
 export const register = async ({ name, email, password }) => {
   const existingUser = await userRepository.findByEmail(email);
   if (existingUser) {
-    throw new ConflictError("Email này đã được sử dụng!");
+    throw new ConflictError("Email is already in use!");
   }
 
   const hashedPassword = await hashPassword(password);
@@ -30,12 +31,12 @@ export const register = async ({ name, email, password }) => {
 export const login = async ({ email, password }) => {
   const user = await userRepository.findByEmail(email);
   if (!user) {
-    throw new UnauthorizedError("Email hoặc mật khẩu không chính xác!");
+    throw new UnauthorizedError("Incorrect email or password!");
   }
 
   const isMatch = await comparePassword(password, user.password);
   if (!isMatch) {
-    throw new UnauthorizedError("Email hoặc mật khẩu không chính xác!");
+    throw new UnauthorizedError("Incorrect email or password!");
   }
 
   const tokenPayload = {
@@ -45,10 +46,7 @@ export const login = async ({ email, password }) => {
   };
 
   const accessToken = generateAccessToken(tokenPayload);
-
-  const refreshToken = generateRefreshToken({
-    id: user.id,
-  });
+  const refreshToken = generateRefreshToken({ id: user.id });
 
   return {
     user: {
@@ -62,10 +60,31 @@ export const login = async ({ email, password }) => {
   };
 };
 
+export const refreshToken = async (token) => {
+  try {
+    const decoded = verifyRefreshToken(token);
+    const user = await userRepository.findById(decoded.id);
+    if (!user) {
+      throw new UnauthorizedError("User no longer exists!");
+    }
+
+    const tokenPayload = {
+      id: user.id,
+      email: user.email,
+      roles: user.roles,
+    };
+
+    const accessToken = generateAccessToken(tokenPayload);
+    return { accessToken };
+  } catch (error) {
+    throw new UnauthorizedError("Invalid or expired refresh token!");
+  }
+};
+
 export const getMe = async (userId) => {
   const user = await userRepository.findById(userId);
   if (!user) {
-    throw new NotFoundError("Người dùng không còn tồn tại trên hệ thống!");
+    throw new NotFoundError("User does not exist on the system!");
   }
   return user;
 };

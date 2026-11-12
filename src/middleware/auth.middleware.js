@@ -6,7 +6,7 @@ export const authenticateToken = (req, res, next) => {
 
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
     throw new UnauthorizedError(
-      "Bạn chưa đăng nhập! Vui lòng cung cấp token hợp lệ.",
+      "Unauthorized! Please provide a valid token.",
     );
   }
 
@@ -21,12 +21,12 @@ export const authenticateToken = (req, res, next) => {
   } catch (error) {
     if (error.name === "TokenExpiredError") {
       throw new UnauthorizedError(
-        "Token của bạn đã hết hạn, vui lòng đăng nhập lại!",
+        "Token has expired, please log in again!",
       );
     }
 
     throw new UnauthorizedError(
-      "Token không hợp lệ hoặc đã bị chỉnh sửa trái phép!",
+      "Invalid or tampered token!",
     );
   }
 };

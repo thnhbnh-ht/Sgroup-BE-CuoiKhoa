@@ -16,7 +16,7 @@ export const getLessonsByClassId = async (classId, requestingUser) => {
   const classData = await classRepository.findById(classId);
 
   if (!classData) {
-    throw new NotFoundError("Lớp này không tồn tại!");
+    throw new NotFoundError("This class does not exist!");
   }
 
   const { roles, id: userId } = getAuthInfo(requestingUser);
@@ -25,7 +25,7 @@ export const getLessonsByClassId = async (classId, requestingUser) => {
   const isMember = await classRepository.isMemberOfClass(classId, userId);
 
   if (!isAdmin && !isMentor && !isMember) {
-    throw new ForbiddenError("Bạn không có quyền xem bài học của lớp này!");
+    throw new ForbiddenError("You do not have permission to view lessons of this class!");
   }
 
   return await lessonRepository.findAllByClassId(classId);
@@ -35,7 +35,7 @@ export const getLessonById = async (id, requestingUser) => {
   const lesson = await lessonRepository.findById(id);
 
   if (!lesson) {
-    throw new NotFoundError("Bài học không tồn tại!");
+    throw new NotFoundError("Lesson does not exist!");
   }
 
   const { roles, id: userId } = getAuthInfo(requestingUser);
@@ -54,7 +54,7 @@ export const getLessonById = async (id, requestingUser) => {
   );
 
   if (!isMember && !isMentor) {
-    throw new ForbiddenError("Bạn không có quyền xem bài học này!");
+    throw new ForbiddenError("You do not have permission to view this lesson!");
   }
 
   return lesson;
@@ -64,7 +64,7 @@ export const createLesson = async (data, requestingUser) => {
   const classData = await classRepository.findById(data.classId);
 
   if (!classData) {
-    throw new NotFoundError("Lớp không tồn tại!");
+    throw new NotFoundError("Class does not exist!");
   }
 
   const { roles, id: userId } = getAuthInfo(requestingUser);
@@ -76,7 +76,7 @@ export const createLesson = async (data, requestingUser) => {
     );
 
     if (!isMentor) {
-      throw new ForbiddenError("Bạn không có quyền tạo bài học của lớp này!");
+      throw new ForbiddenError("You do not have permission to create lessons for this class!");
     }
   }
 
@@ -93,7 +93,7 @@ export const updateLesson = async (id, data, requestingUser) => {
   const lesson = await lessonRepository.findById(id);
 
   if (!lesson) {
-    throw new NotFoundError("Bài học này không tồn tại!");
+    throw new NotFoundError("This lesson does not exist!");
   }
 
   const { roles, id: userId } = getAuthInfo(requestingUser);
@@ -105,7 +105,7 @@ export const updateLesson = async (id, data, requestingUser) => {
     );
 
     if (!isMentor) {
-      throw new ForbiddenError("Bạn không có quyền cập nhật bài học này!");
+      throw new ForbiddenError("You do not have permission to update this lesson!");
     }
   }
 
@@ -116,7 +116,7 @@ export const deleteLesson = async (id, requestingUser) => {
   const lesson = await lessonRepository.findById(id);
 
   if (!lesson) {
-    throw new NotFoundError("Bài học này không tồn tại!");
+    throw new NotFoundError("This lesson does not exist!");
   }
 
   const { roles, id: userId } = getAuthInfo(requestingUser);
@@ -128,7 +128,7 @@ export const deleteLesson = async (id, requestingUser) => {
     );
 
     if (!isMentor) {
-      throw new ForbiddenError("Bạn không có quyền xóa bài học này!");
+      throw new ForbiddenError("You do not have permission to delete this lesson!");
     }
   }
 
@@ -139,7 +139,7 @@ export const completeLesson = async (lessonId, requestingUser) => {
   const lesson = await lessonRepository.findById(lessonId);
 
   if (!lesson) {
-    throw new NotFoundError("Bài học này không tồn tại!");
+    throw new NotFoundError("This lesson does not exist!");
   }
 
   const { id: userId } = getAuthInfo(requestingUser);
@@ -149,7 +149,7 @@ export const completeLesson = async (lessonId, requestingUser) => {
   );
 
   if (!isMember) {
-    throw new ForbiddenError("Bạn không phải thành viên của lớp này!");
+    throw new ForbiddenError("You are not a member of this class!");
   }
 
   const progress = await lessonRepository.findProgress(
@@ -158,7 +158,7 @@ export const completeLesson = async (lessonId, requestingUser) => {
   );
 
   if (progress) {
-    throw new ConflictError("Bạn đã hoàn thành bài học này!");
+    throw new ConflictError("You have already completed this lesson!");
   }
 
   return await lessonRepository.completeLesson(lessonId, userId);
@@ -167,7 +167,7 @@ export const completeLesson = async (lessonId, requestingUser) => {
 export const getClassProgress = async (classId, requestingUser) => {
   const classData = await classRepository.findById(classId);
   if (!classData) {
-    throw new NotFoundError("Class không tồn tại!");
+    throw new NotFoundError("Class does not exist!");
   }
 
   const userId = Number(requestingUser?.id || requestingUser?.userId || 0);
@@ -178,7 +178,7 @@ export const getClassProgress = async (classId, requestingUser) => {
   const isMember = userId > 0 ? await classRepository.isMemberOfClass(classId, userId) : false;
 
   if (!isAdmin && !isMentor && !isMember) {
-    throw new ForbiddenError("Bạn không có quyền xem tiến độ của lớp này!");
+    throw new ForbiddenError("You do not have permission to view progress of this class!");
   }
 
   const targetUserId = userId > 0 ? userId : 0;

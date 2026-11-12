@@ -7,7 +7,7 @@ export const getAssignmentsByClassId = catchAsync(async (req, res) => {
     req.params.id,
     req.user,
   );
-  return sendSuccess(res, 200, "Lấy danh sách bài tập thành công!", assignments);
+  return sendSuccess(res, 200, "Fetched assignments successfully!", assignments);
 });
 
 export const getAssignmentById = catchAsync(async (req, res) => {
@@ -15,7 +15,7 @@ export const getAssignmentById = catchAsync(async (req, res) => {
     req.params.id,
     req.user,
   );
-  return sendSuccess(res, 200, "Lấy thông tin bài tập thành công!", assignment);
+  return sendSuccess(res, 200, "Fetched assignment details successfully!", assignment);
 });
 
 export const createAssignment = catchAsync(async (req, res) => {
@@ -24,7 +24,7 @@ export const createAssignment = catchAsync(async (req, res) => {
     req.body,      
     req.user,     
   );
-  return sendSuccess(res, 201, "Tạo bài tập thành công!", assignment);
+  return sendSuccess(res, 201, "Assignment created successfully!", assignment);
 });
 
 export const updateAssignment = catchAsync(async (req, res) => {
@@ -33,7 +33,7 @@ export const updateAssignment = catchAsync(async (req, res) => {
     req.body,
     req.user,
   );
-  return sendSuccess(res, 200, "Cập nhật bài tập thành công!", assignment);
+  return sendSuccess(res, 200, "Assignment updated successfully!", assignment);
 });
 
 export const deleteAssignment = catchAsync(async (req, res) => {
@@ -41,5 +41,5 @@ export const deleteAssignment = catchAsync(async (req, res) => {
     req.params.id,
     req.user,
   );
-  return sendSuccess(res, 200, "Xóa bài tập thành công!", assignment);
+  return sendSuccess(res, 200, "Assignment deleted successfully!", assignment);
 });

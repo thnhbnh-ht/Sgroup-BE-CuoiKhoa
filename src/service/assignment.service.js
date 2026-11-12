@@ -15,7 +15,7 @@ export const getAssignmentsByClassId = async (classId, requestingUser) => {
   const classData = await classRepository.findById(classId);
 
   if (!classData) {
-    throw new NotFoundError("Lớp này không tồn tại!");
+    throw new NotFoundError("Class does not exist!");
   }
 
   const { roles, id: userId } = getAuthInfo(requestingUser);
@@ -24,7 +24,7 @@ export const getAssignmentsByClassId = async (classId, requestingUser) => {
   const isMember = await classRepository.isMemberOfClass(classId, userId);
 
   if (!isAdmin && !isMentor && !isMember) {
-    throw new ForbiddenError("Bạn không có quyền xem bài tập của lớp này!");
+    throw new ForbiddenError("You do not have permission to view assignments of this class!");
   }
 
   return await assignmentRepository.findAllByClassId(classId);
@@ -34,7 +34,7 @@ export const getAssignmentById = async (id, requestingUser) => {
   const assignment = await assignmentRepository.findById(id);
 
   if (!assignment) {
-    throw new NotFoundError("Bài tập không tồn tại!");
+    throw new NotFoundError("Assignment does not exist!");
   }
 
   const classData = await classRepository.findById(assignment.class_id);
@@ -48,7 +48,7 @@ export const getAssignmentById = async (id, requestingUser) => {
   const isMentor = Number(classData.mentor_id) === userId;
 
   if (!isMember && !isMentor) {
-    throw new ForbiddenError("Bạn không có quyền xem bài tập này!");
+    throw new ForbiddenError("You do not have permission to view this assignment!");
   }
 
   return assignment;
@@ -58,7 +58,7 @@ export const createAssignment = async (classId, data, requestingUser) => {
   const classData = await classRepository.findById(classId);
 
   if (!classData) {
-    throw new NotFoundError("Lớp không tồn tại!");
+    throw new NotFoundError("Class does not exist!");
   }
 
   const { roles, id: userId } = getAuthInfo(requestingUser);
@@ -66,7 +66,7 @@ export const createAssignment = async (classId, data, requestingUser) => {
   if (!roles.includes("ADMIN")) {
     const isMentor = Number(classData.mentor_id) === userId;
     if (!isMentor) {
-      throw new ForbiddenError("Bạn không có quyền tạo bài tập cho lớp này!");
+      throw new ForbiddenError("You do not have permission to create assignments for this class!");
     }
   }
 
@@ -84,7 +84,7 @@ export const updateAssignment = async (id, data, requestingUser) => {
   const assignment = await assignmentRepository.findById(id);
 
   if (!assignment) {
-    throw new NotFoundError("Bài tập này không tồn tại!");
+    throw new NotFoundError("This assignment does not exist!");
   }
 
   const classData = await classRepository.findById(assignment.class_id);
@@ -93,7 +93,7 @@ export const updateAssignment = async (id, data, requestingUser) => {
   if (!roles.includes("ADMIN")) {
     const isMentor = Number(classData.mentor_id) === userId;
     if (!isMentor) {
-      throw new ForbiddenError("Bạn không có quyền cập nhật bài tập này!");
+      throw new ForbiddenError("You do not have permission to update this assignment!");
     }
   }
 
@@ -104,7 +104,7 @@ export const deleteAssignment = async (id, requestingUser) => {
   const assignment = await assignmentRepository.findById(id);
 
   if (!assignment) {
-    throw new NotFoundError("Bài tập này không tồn tại!");
+    throw new NotFoundError("This assignment does not exist!");
   }
 
   const classData = await classRepository.findById(assignment.class_id);
@@ -113,7 +113,7 @@ export const deleteAssignment = async (id, requestingUser) => {
   if (!roles.includes("ADMIN")) {
     const isMentor = Number(classData.mentor_id) === userId;
     if (!isMentor) {
-      throw new ForbiddenError("Bạn không có quyền xóa bài tập này!");
+      throw new ForbiddenError("You do not have permission to delete this assignment!");
     }
   }
 

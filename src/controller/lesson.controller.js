@@ -7,12 +7,12 @@ export const getLessonsByClassId = catchAsync(async (req, res) => {
     req.params.id,
     req.user,
   );
-  return sendSuccess(res, 200, "Lấy danh sách lesson thành công!", lessons);
+  return sendSuccess(res, 200, "Fetched lessons successfully!", lessons);
 });
 
 export const getLessonById = catchAsync(async (req, res) => {
   const lesson = await lessonService.getLessonById(req.params.id, req.user);
-  return sendSuccess(res, 200, "Lấy dữ liệu lesson thành công", lesson);
+  return sendSuccess(res, 200, "Fetched lesson details successfully!", lesson);
 });
 
 export const createLesson = catchAsync(async (req, res) => {
@@ -23,7 +23,7 @@ export const createLesson = catchAsync(async (req, res) => {
     },
     req.user,
   );
-  return sendSuccess(res, 201, "Tạo lesson thành công!", lesson);
+  return sendSuccess(res, 201, "Lesson created successfully!", lesson);
 });
 
 export const updateLesson = catchAsync(async (req, res) => {
@@ -32,17 +32,17 @@ export const updateLesson = catchAsync(async (req, res) => {
     req.body,
     req.user,
   );
-  return sendSuccess(res, 200, "Cập nhật lesson thành công!", lesson);
+  return sendSuccess(res, 200, "Lesson updated successfully!", lesson);
 });
 
 export const deleteLesson = catchAsync(async (req, res) => {
   const lesson = await lessonService.deleteLesson(req.params.id, req.user);
-  return sendSuccess(res, 200, "Xóa lesson thành công!", lesson);
+  return sendSuccess(res, 200, "Lesson deleted successfully!", lesson);
 });
 
 export const completeLesson = catchAsync(async (req, res) => {
   const progress = await lessonService.completeLesson(req.params.id, req.user);
-  return sendSuccess(res, 200, "Hoàn thành lesson thành công!", progress);
+  return sendSuccess(res, 200, "Lesson completed successfully!", progress);
 });
 
 export const getClassProgress = catchAsync(async (req, res) => {
@@ -50,5 +50,5 @@ export const getClassProgress = catchAsync(async (req, res) => {
     req.params.id,
     req.user,
   );
-  return sendSuccess(res, 200, "Lấy tiến độ lesson thành công!", progressData);
+  return sendSuccess(res, 200, "Fetched class progress successfully!", progressData);
 });
