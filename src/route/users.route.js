@@ -8,40 +8,41 @@ import {
 } from "../middleware/validate.js";
 import { authenticateToken } from "../middleware/auth.middleware.js";
 import { requirePermission } from "../middleware/rbac.middleware.js";
+import { PERMISSIONS } from "../constants/permissions.js";
 
 const router = Router();
 
 router.get(
   "/",
   authenticateToken,
-  requirePermission("USER_READ"),
+  requirePermission(PERMISSIONS.USER_READ),
   userController.getAllUsers,
 );
 router.get(
   "/:id",
   authenticateToken,
-  requirePermission("USER_READ"),
+  requirePermission(PERMISSIONS.USER_READ),
   validate(userIdParamRules),
   userController.getUserById,
 );
 router.post(
   "/",
   authenticateToken,
-  requirePermission("USER_CREATE"),
+  requirePermission(PERMISSIONS.USER_CREATE),
   validate(createUserRules),
   userController.createUser,
 );
 router.patch(
   "/:id",
   authenticateToken,
-  requirePermission("USER_UPDATE"),
+  requirePermission(PERMISSIONS.USER_UPDATE),
   validate([...userIdParamRules, ...updateUserRules]),
   userController.updateUser,
 );
 router.delete(
   "/:id",
   authenticateToken,
-  requirePermission("USER_DELETE"),
+  requirePermission(PERMISSIONS.USER_DELETE),
   validate(userIdParamRules),
   userController.deleteUser,
 );
