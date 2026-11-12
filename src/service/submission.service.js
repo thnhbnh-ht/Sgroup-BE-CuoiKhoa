@@ -1,5 +1,6 @@
 import * as submissionRepository from "../repository/submission.repository.js";
 import * as classRepository from "../repository/class.repository.js";
+import * as uploadService from "./upload.service.js";
 import {
   NotFoundError,
   ForbiddenError,
@@ -100,7 +101,12 @@ export const getSubmissionsByMemberId = async (memberId, options = {}) => {
   return await submissionRepository.findAllByMemberId(memberId, options);
 };
 
-export const submitAssignment = async (assignmentId, data, requestingUser) => {
+export const submitAssignment = async (
+  assignmentId,
+  data = {},
+  requestingUser,
+  file = null,
+) => {
   const assignment = await submissionRepository.findAssignmentById(assignmentId);
 
   if (!assignment) {
@@ -122,12 +128,28 @@ export const submitAssignment = async (assignmentId, data, requestingUser) => {
     throw new BadRequestError("Đã quá thời hạn nộp bài tập này!");
   }
 
-  return await submissionRepository.upsert({
+  let uploadedFile = null;
+  if (file) {
+    uploadedFile = await uploadService.uploadFile(file, requestingUser.id);
+  }
+
+  const repositoryUrl = data.repositoryUrl || uploadedFile?.url || null;
+
+  const submission = await submissionRepository.upsert({
     assignmentId,
     memberId: requestingUser.id,
     content: data.content,
-    repositoryUrl: data.repositoryUrl,
+    repositoryUrl,
   });
+
+  if (uploadedFile) {
+    return {
+      ...submission,
+      attachment: uploadedFile,
+    };
+  }
+
+  return submission;
 };
 
 export const reviewSubmission = async (id, data, requestingUser) => {

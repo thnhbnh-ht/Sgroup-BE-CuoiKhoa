@@ -31,6 +31,7 @@ export const submitAssignment = catchAsync(async (req, res) => {
     req.params.id,
     req.body,
     req.user,
+    req.file,
   );
 
   return sendSuccess(res, 201, "Nộp bài thành công!", submission);

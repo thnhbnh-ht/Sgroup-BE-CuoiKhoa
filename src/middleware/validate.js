@@ -105,11 +105,6 @@ export const registerRules = [
     .withMessage("Mật khẩu không được để trống")
     .isLength({ min: 6 })
     .withMessage("Mật khẩu phải có tối thiểu 6 ký tự"),
-
-  body("age")
-    .optional()
-    .isInt({ min: 1, max: 120 })
-    .withMessage("Tuổi phải là số nguyên từ 1 đến 120"),
 ];
 
 export const loginRules = [
@@ -125,6 +120,16 @@ export const loginRules = [
     .trim()
     .notEmpty()
     .withMessage("Mật khẩu không được để trống"),
+];
+
+export const refreshTokenRules = [
+  body().custom((value, { req }) => {
+    const token = req.body?.refreshToken || req.body?.refresh_token;
+    if (!token || typeof token !== "string" || token.trim() === "") {
+      throw new Error("Refresh token không được để trống");
+    }
+    return true;
+  }),
 ];
 
 export const classIdParamRules = [
@@ -299,67 +304,80 @@ export const updateLessonRules = [
     .isInt({ min: 0 })
     .withMessage("Thứ tự lesson phải là số nguyên >= 0"),
 ];
-export const createAssignmentRules = [
-  body("title")
-    .trim()
-    .notEmpty()
-    .withMessage("Tiêu đề bài tập không được để trống")
-    .isString()
-    .withMessage("Tiêu đề bài tập phải là chuỗi"),
-
-  body("description").optional().trim().isString(),
-
-  body("deadline")
-    .notEmpty()
-    .withMessage("Deadline không được để trống")
-    .isISO8601()
-    .withMessage("Deadline không đúng định dạng ISO8601"),
-
-  body("maximumScore")
-    .notEmpty()
-    .withMessage("Điểm tối đa không được để trống")
-    .isFloat({ min: 0 })
-    .withMessage("Điểm tối đa phải là số >= 0"),
-];
-
-export const updateAssignmentRules = [
-  body().custom((value, { req }) => {
-    const allowedFields = ["title", "description", "deadline", "maximumScore"];
-    const hasAllowedField = Object.keys(req.body).some((key) =>
-      allowedFields.includes(key)
-    );
-    if (!hasAllowedField) {
-      throw new Error("Phải cung cấp ít nhất một trường để cập nhật bài tập");
-    }
-    return true;
-  }),
-  body("title").optional().trim().notEmpty().isString(),
-  body("description").optional().trim().isString(),
-  body("deadline").optional().isISO8601(),
-  body("maximumScore").optional().isFloat({ min: 0 }),
-];
 
 export const assignmentIdParamRules = [
   param("id")
     .trim()
     .notEmpty()
-    .withMessage("ID bài tập không được để trống")
+    .withMessage("ID assignment không được để trống")
     .isInt({ min: 1 })
-    .withMessage("ID bài tập phải là số nguyên dương"),
+    .withMessage("ID assignment phải là số nguyên dương"),
 ];
 
-export const createSubmissionRules = [
-  body("content").optional().trim().isString(),
-  body("repositoryUrl").optional().trim().isURL().withMessage("Repository URL không đúng định dạng"),
-];
-
-export const reviewSubmissionRules = [
-  body("score")
+export const createAssignmentRules = [
+  body("title")
     .notEmpty()
-    .withMessage("Điểm số không được để trống")
-    .isFloat({ min: 0 })
-    .withMessage("Điểm số phải là số >= 0"),
-  body("feedback").optional().trim().isString(),
+    .withMessage("Tên assignment không được để trống")
+    .isString()
+    .withMessage("Tên assignment phải là chuỗi"),
+
+  body("description")
+    .optional()
+    .isString()
+    .withMessage("Mô tả assignment phải là chuỗi"),
+
+  body("deadline")
+    .notEmpty()
+    .withMessage("Deadline không được để trống")
+    .isISO8601()
+    .withMessage("Deadline phải có định dạng ngày giờ hợp lệ"),
+
+  body("maximumScore")
+    .notEmpty()
+    .withMessage("Điểm tối đa không được để trống")
+    .isFloat({ min: 0.01 })
+    .withMessage("Điểm tối đa phải lớn hơn 0"),
+];
+
+export const updateAssignmentRules = [
+  body().custom((value, { req }) => {
+    const allowedFields = ["title", "description", "deadline", "maximumScore"];
+
+    const hasAllowedField = Object.keys(req.body).some((key) =>
+      allowedFields.includes(key),
+    );
+
+    if (!hasAllowedField) {
+      throw new Error(
+        "Phải cung cấp ít nhất một trường để cập nhật assignment",
+      );
+    }
+
+    return true;
+  }),
+
+  body("title")
+    .optional()
+    .trim()
+    .notEmpty()
+    .withMessage("Tên assignment không được để trống")
+    .isString()
+    .withMessage("Tên assignment phải là chuỗi"),
+
+  body("description")
+    .optional()
+    .isString()
+    .withMessage("Mô tả assignment phải là chuỗi"),
+
+  body("deadline")
+    .optional()
+    .isISO8601()
+    .withMessage("Deadline phải có định dạng ngày giờ hợp lệ"),
+
+  body("maximumScore")
+    .optional()
+    .isFloat({ min: 0.01 })
+    .withMessage("Điểm tối đa phải lớn hơn 0"),
 ];
 
 export const submissionIdParamRules = [
@@ -369,4 +387,55 @@ export const submissionIdParamRules = [
     .withMessage("ID bài nộp không được để trống")
     .isInt({ min: 1 })
     .withMessage("ID bài nộp phải là số nguyên dương"),
+];
+
+export const submitAssignmentRules = [
+  body().custom((value, { req }) => {
+    if (req.file) {
+      return true;
+    }
+
+    const allowedFields = ["content", "repositoryUrl"];
+
+    const hasAllowedField = Object.keys(req.body || {}).some(
+      (key) =>
+        allowedFields.includes(key) &&
+        req.body[key] !== undefined &&
+        String(req.body[key]).trim() !== "",
+    );
+
+    if (!hasAllowedField) {
+      throw new Error(
+        "Phải cung cấp ít nhất nội dung bài làm (content), link bài nộp (repositoryUrl) hoặc file đính kèm (file)",
+      );
+    }
+
+    return true;
+  }),
+
+  body("content")
+    .optional()
+    .trim()
+    .isString()
+    .withMessage("Nội dung bài nộp phải là chuỗi"),
+
+  body("repositoryUrl")
+    .optional()
+    .trim()
+    .isURL()
+    .withMessage("Link repository không đúng định dạng URL"),
+];
+
+export const reviewSubmissionRules = [
+  body("score")
+    .notEmpty()
+    .withMessage("Điểm số không được để trống")
+    .isFloat({ min: 0 })
+    .withMessage("Điểm số phải là số lớn hơn hoặc bằng 0"),
+
+  body("feedback")
+    .optional()
+    .trim()
+    .isString()
+    .withMessage("Nhận xét phải là chuỗi"),
 ];
