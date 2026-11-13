@@ -12,8 +12,8 @@ const router = Router();
 
 router.post("/register", validate(registerRules), authController.register);
 router.post("/login", validate(loginRules), authController.login);
-router.post("/logout", authenticateToken, authController.logout); // Thêm route logout
-router.post("/refresh-token", validate(refreshTokenRules), authController.refreshToken); // Thêm route refresh token
+router.post("/logout", authenticateToken, authController.logout); 
+router.post("/refresh-token", validate(refreshTokenRules), authController.refreshToken);
 router.get("/me", authenticateToken, authController.getMe);
 
 export default router;

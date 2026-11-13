@@ -15,20 +15,21 @@ import {
 } from "../middleware/validate.js";
 import { authenticateToken } from "../middleware/auth.middleware.js";
 import { requirePermission } from "../middleware/rbac.middleware.js";
+import { PERMISSIONS } from "../constants/permissions.js";
 
 const router = Router();
 
 router.get(
   "/",
   authenticateToken,
-  requirePermission("CLASS_READ"),
+  requirePermission(PERMISSIONS.CLASS_READ),
   classController.getAllClasses,
 );
 
 router.get(
   "/:id",
   authenticateToken,
-  requirePermission("CLASS_READ"),
+  requirePermission(PERMISSIONS.CLASS_READ),
   validate(classIdParamRules),
   classController.getClassById,
 );
@@ -36,7 +37,7 @@ router.get(
 router.post(
   "/",
   authenticateToken,
-  requirePermission("CLASS_CREATE"),
+  requirePermission(PERMISSIONS.CLASS_CREATE),
   validate(createClassRules),
   classController.createClass,
 );
@@ -44,7 +45,7 @@ router.post(
 router.patch(
   "/:id",
   authenticateToken,
-  requirePermission("CLASS_UPDATE"),
+  requirePermission(PERMISSIONS.CLASS_UPDATE),
   validate([...classIdParamRules, ...updateClassRules]),
   classController.updateClass,
 );
@@ -52,7 +53,7 @@ router.patch(
 router.patch(
   "/:id/mentor",
   authenticateToken,
-  requirePermission("CLASS_UPDATE"),
+  requirePermission(PERMISSIONS.CLASS_UPDATE),
   validate([...classIdParamRules, ...assignMentorRules]),
   classController.assignMentor,
 );
@@ -60,7 +61,7 @@ router.patch(
 router.delete(
   "/:id",
   authenticateToken,
-  requirePermission("CLASS_DELETE"),
+  requirePermission(PERMISSIONS.CLASS_DELETE),
   validate(classIdParamRules),
   classController.deleteClass,
 );
@@ -68,7 +69,7 @@ router.delete(
 router.get(
   "/:id/members",
   authenticateToken,
-  requirePermission("CLASS_READ"),
+  requirePermission(PERMISSIONS.CLASS_READ),
   validate(classIdParamRules),
   classController.getMembersOfClass,
 );
@@ -76,7 +77,7 @@ router.get(
 router.post(
   "/:id/members",
   authenticateToken,
-  requirePermission("CLASS_MEMBER_ADD"),
+  requirePermission(PERMISSIONS.CLASS_MEMBER_ADD),
   validate([...classIdParamRules, ...addClassMemberRules]),
   classController.addClassMember,
 );
@@ -84,7 +85,7 @@ router.post(
 router.delete(
   "/:id/members/:memberId",
   authenticateToken,
-  requirePermission("CLASS_MEMBER_REMOVE"),
+  requirePermission(PERMISSIONS.CLASS_MEMBER_REMOVE),
   validate([...classIdParamRules, ...memberIdParamRules]),
   classController.removeClassMember,
 );

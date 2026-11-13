@@ -1,4 +1,5 @@
 import * as userRepository from "../repository/user.repository.js";
+import { config } from "../config/env.config.js";
 import {
   ConflictError,
   UnauthorizedError,
@@ -39,10 +40,13 @@ export const login = async ({ email, password }) => {
     throw new UnauthorizedError("Incorrect email or password!");
   }
 
+  const permissions = await userRepository.findPermissionsByUserId(user.id);
+
   const tokenPayload = {
     id: user.id,
     email: user.email,
     roles: user.roles,
+    permissions,
   };
 
   const accessToken = generateAccessToken(tokenPayload);
@@ -54,6 +58,7 @@ export const login = async ({ email, password }) => {
       name: user.name,
       email: user.email,
       roles: user.roles,
+      permissions,
     },
     accessToken,
     refreshToken,
@@ -81,10 +86,22 @@ export const refreshToken = async (token) => {
   }
 };
 
+export const logout = async (userId) => {
+  const user = await userRepository.findById(userId);
+  if (!user) {
+    throw new NotFoundError("User does not exist!");
+  }
+  return true;
+};
+
 export const getMe = async (userId) => {
   const user = await userRepository.findById(userId);
   if (!user) {
     throw new NotFoundError("User does not exist on the system!");
   }
-  return user;
+  const permissions = await userRepository.findPermissionsByUserId(userId);
+  return {
+    ...user,
+    permissions,
+  };
 };
