@@ -38,10 +38,13 @@ export const login = async ({ email, password }) => {
     throw new UnauthorizedError("Email hoặc mật khẩu không chính xác!");
   }
 
+  const permissions = await userRepository.findPermissionsByUserId(user.id);
+
   const tokenPayload = {
     id: user.id,
     email: user.email,
     roles: user.roles,
+    permissions,
   };
 
   const accessToken = generateAccessToken(tokenPayload);
@@ -56,6 +59,7 @@ export const login = async ({ email, password }) => {
       name: user.name,
       email: user.email,
       roles: user.roles,
+      permissions,
     },
     accessToken,
     refreshToken,
@@ -67,5 +71,9 @@ export const getMe = async (userId) => {
   if (!user) {
     throw new NotFoundError("Người dùng không còn tồn tại trên hệ thống!");
   }
-  return user;
+  const permissions = await userRepository.findPermissionsByUserId(userId);
+  return {
+    ...user,
+    permissions,
+  };
 };
