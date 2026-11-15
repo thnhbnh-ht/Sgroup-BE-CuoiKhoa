@@ -52,6 +52,8 @@ export const login = async ({ email, password }) => {
   const accessToken = generateAccessToken(tokenPayload);
   const refreshToken = generateRefreshToken({ id: user.id });
 
+  await userRepository.updateRefreshToken(user.id, refreshToken);
+
   return {
     user: {
       id: user.id,
@@ -66,31 +68,66 @@ export const login = async ({ email, password }) => {
 };
 
 export const refreshToken = async (token) => {
+  let decoded;
   try {
-    const decoded = verifyRefreshToken(token);
-    const user = await userRepository.findById(decoded.id);
-    if (!user) {
-      throw new UnauthorizedError("User no longer exists!");
-    }
-
-    const tokenPayload = {
-      id: user.id,
-      email: user.email,
-      roles: user.roles,
-    };
-
-    const accessToken = generateAccessToken(tokenPayload);
-    return { accessToken };
+    decoded = verifyRefreshToken(token);
   } catch (error) {
     throw new UnauthorizedError("Invalid or expired refresh token!");
   }
+
+  const user = await userRepository.findByIdWithToken(decoded.id);
+  if (!user) {
+    throw new UnauthorizedError("User no longer exists!");
+  }
+
+  if (!user.refresh_token || user.refresh_token !== token) {
+    throw new UnauthorizedError("Invalid or revoked refresh token!");
+  }
+
+  const permissions = await userRepository.findPermissionsByUserId(user.id);
+
+  const tokenPayload = {
+    id: user.id,
+    email: user.email,
+    roles: user.roles,
+    permissions,
+  };
+
+  const accessToken = generateAccessToken(tokenPayload);
+  const newRefreshToken = generateRefreshToken({ id: user.id });
+
+  await userRepository.updateRefreshToken(user.id, newRefreshToken);
+
+  return {
+    accessToken,
+    refreshToken: newRefreshToken,
+  };
 };
 
-export const logout = async (userId) => {
-  const user = await userRepository.findById(userId);
-  if (!user) {
-    throw new NotFoundError("User does not exist!");
+export const logout = async (userId, token) => {
+  if (userId) {
+    await userRepository.updateRefreshToken(userId, null);
+    return true;
   }
+
+  if (token) {
+    try {
+      const decoded = verifyRefreshToken(token);
+      if (decoded?.id) {
+        await userRepository.updateRefreshToken(decoded.id, null);
+        return true;
+      }
+    } catch {
+      // Ignore token verification errors during logout
+    }
+
+    const user = await userRepository.findByRefreshToken(token);
+    if (user) {
+      await userRepository.updateRefreshToken(user.id, null);
+      return true;
+    }
+  }
+
   return true;
 };
 

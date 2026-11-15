@@ -30,3 +30,31 @@ export const authenticateToken = (req, res, next) => {
     );
   }
 };
+
+export const authenticateLogout = (req, res, next) => {
+  const authHeader = req.headers["authorization"];
+
+  if (authHeader && authHeader.startsWith("Bearer ")) {
+    const token = authHeader.split(" ")[1];
+    try {
+      req.user = verifyAccessToken(token);
+      return next();
+    } catch (error) {
+      const refreshToken = req.body?.refreshToken || req.body?.refresh_token;
+      if (refreshToken) {
+        return next();
+      }
+      if (error.name === "TokenExpiredError") {
+        throw new UnauthorizedError("Token has expired, please log in again!");
+      }
+      throw new UnauthorizedError("Invalid or tampered token!");
+    }
+  }
+
+  const refreshToken = req.body?.refreshToken || req.body?.refresh_token;
+  if (refreshToken) {
+    return next();
+  }
+
+  throw new UnauthorizedError("Unauthorized! Please provide a valid token.");
+};

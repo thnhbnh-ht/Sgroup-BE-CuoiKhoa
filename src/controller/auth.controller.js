@@ -13,12 +13,15 @@ export const login = catchAsync(async (req, res) => {
 });
 
 export const logout = catchAsync(async (req, res) => {
+  const userId = req.user?.id;
+  const token = req.body?.refreshToken || req.body?.refresh_token;
+  await authService.logout(userId, token);
   return sendSuccess(res, 200, "Logged out successfully!", null);
 });
 
 export const refreshToken = catchAsync(async (req, res) => {
-  const { refreshToken } = req.body;
-  const result = await authService.refreshToken(refreshToken);
+  const token = req.body?.refreshToken || req.body?.refresh_token;
+  const result = await authService.refreshToken(token);
   return sendSuccess(res, 200, "Token refreshed successfully!", result);
 });
 

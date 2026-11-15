@@ -207,3 +207,59 @@ export const findPermissionsByUserId = async (userId) => {
 
   return result.rows.map((row) => row.name);
 };
+
+export const findByIdWithToken = async (id) => {
+  const result = await pool.query(
+    `
+    SELECT 
+        u.id, u.name, u.email, u.refresh_token, u.created_at,
+        COALESCE(
+            array_agg(r.name) FILTER (WHERE r.name IS NOT NULL), 
+            '{}'
+        ) AS roles
+    FROM users u
+    LEFT JOIN user_roles ur ON ur.user_id = u.id
+    LEFT JOIN roles r ON r.id = ur.role_id
+    WHERE u.id = $1
+    GROUP BY u.id
+    `,
+    [id],
+  );
+
+  return result.rows[0] || null;
+};
+
+export const findByRefreshToken = async (refreshToken) => {
+  const result = await pool.query(
+    `
+    SELECT 
+        u.id, u.name, u.email, u.refresh_token, u.created_at,
+        COALESCE(
+            array_agg(r.name) FILTER (WHERE r.name IS NOT NULL), 
+            '{}'
+        ) AS roles
+    FROM users u
+    LEFT JOIN user_roles ur ON ur.user_id = u.id
+    LEFT JOIN roles r ON r.id = ur.role_id
+    WHERE u.refresh_token = $1
+    GROUP BY u.id
+    `,
+    [refreshToken],
+  );
+
+  return result.rows[0] || null;
+};
+
+export const updateRefreshToken = async (userId, refreshToken) => {
+  const result = await pool.query(
+    `
+    UPDATE users
+    SET refresh_token = $1, updated_at = CURRENT_TIMESTAMP
+    WHERE id = $2
+    RETURNING id, name, email, refresh_token
+    `,
+    [refreshToken, userId],
+  );
+
+  return result.rows[0] || null;
+};
