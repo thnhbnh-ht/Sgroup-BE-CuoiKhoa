@@ -207,7 +207,8 @@ describe("Assignment API", () => {
       .set("Authorization", `Bearer ${memberToken}`);
 
     assert.equal(listRes.status, 200);
-    assert.equal(listRes.body.data.length, 1);
+    const assignments = listRes.body.data.assignments || listRes.body.data;
+    assert.equal(assignments.length, 1);
 
     const detailRes = await request(app)
       .get(`/assignments/${assignmentId}`)

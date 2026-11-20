@@ -21,7 +21,6 @@ router.get(
 router.get(
   "/:id",
   authenticateToken,
-  requirePermission(PERMISSIONS.SUBMISSION_READ_OWN),
   validate(submissionIdParamRules),
   submissionController.getSubmissionById,
 );

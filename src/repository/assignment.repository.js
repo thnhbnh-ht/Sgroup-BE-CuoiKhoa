@@ -1,16 +1,69 @@
 import pool from "../config/db.config.js";
 
-export const findAllByClassId = async (classId) => {
-  const result = await pool.query(
+export const findAllByClassId = async (
+  classId,
+  { page = 1, limit = 10, search, status, sortBy = "id", order = "asc" } = {},
+) => {
+  const validSortColumns = [
+    "id",
+    "title",
+    "deadline",
+    "created_at",
+    "maximum_score",
+  ];
+  const sortCol = validSortColumns.includes(sortBy) ? sortBy : "id";
+  const sortOrder = order.toLowerCase() === "desc" ? "DESC" : "ASC";
+
+  const parsedPage = Math.max(1, parseInt(page, 10) || 1);
+  const parsedLimit = Math.max(1, Math.min(100, parseInt(limit, 10) || 10));
+  const offset = (parsedPage - 1) * parsedLimit;
+
+  const conditions = ["class_id = $1"];
+  const values = [classId];
+  let paramIndex = 2;
+
+  if (search && search.trim() !== "") {
+    conditions.push(
+      `(title ILIKE $${paramIndex} OR description ILIKE $${paramIndex})`,
+    );
+    values.push(`%${search.trim()}%`);
+    paramIndex++;
+  }
+
+  if (status === "active") {
+    conditions.push(`(deadline IS NULL OR deadline >= CURRENT_TIMESTAMP)`);
+  } else if (status === "expired" || status === "overdue") {
+    conditions.push(`(deadline IS NOT NULL AND deadline < CURRENT_TIMESTAMP)`);
+  }
+
+  const whereClause = conditions.join(" AND ");
+
+  const countResult = await pool.query(
+    `SELECT COUNT(id)::int AS total FROM assignments WHERE ${whereClause}`,
+    values,
+  );
+  const total = countResult.rows[0]?.total || 0;
+
+  const dataResult = await pool.query(
     `
     SELECT *
     FROM assignments
-    WHERE class_id = $1
-    ORDER BY id ASC
+    WHERE ${whereClause}
+    ORDER BY ${sortCol} ${sortOrder}
+    LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
     `,
-    [classId],
+    [...values, parsedLimit, offset],
   );
-  return result.rows;
+
+  return {
+    assignments: dataResult.rows,
+    pagination: {
+      total,
+      page: parsedPage,
+      limit: parsedLimit,
+      totalPages: Math.ceil(total / parsedLimit),
+    },
+  };
 };
 
 export const findById = async (id) => {

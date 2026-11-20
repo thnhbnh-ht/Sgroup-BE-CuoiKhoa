@@ -6,16 +6,18 @@ import {
   ConflictError,
 } from "../core/error.response.js";
 
-export const getAllClasses = async (requestingUser) => {
-  if (requestingUser.roles.includes("ADMIN")) {
-    return await classRepository.findAll();
-  }
+export const getAllClasses = async (requestingUser, query = {}) => {
+  const isAdmin = requestingUser.roles.includes("ADMIN");
 
-  return await classRepository.findAllByMemberId(requestingUser.id);
+  return await classRepository.findAll({
+    ...query,
+    isAdmin,
+    userId: requestingUser.id,
+  });
 };
 
 export const getClassById = async (id, requestingUser) => {
-  const classData = await classRepository.findById(id);
+  const classData = await classRepository.findByIdWithDetails(id);
 
   if (!classData) {
     throw new NotFoundError("Class does not exist!");
@@ -64,14 +66,14 @@ export const deleteClass = async (id) => {
   return await classRepository.deleteById(id);
 };
 
-export const getMembersOfClass = async (classId) => {
+export const getMembersOfClass = async (classId, query = {}) => {
   const classData = await classRepository.findById(classId);
 
   if (!classData) {
     throw new NotFoundError("Class does not exist!");
   }
 
-  return await classRepository.findMembersByClassId(classId);
+  return await classRepository.findMembersByClassId(classId, query);
 };
 
 export const addClassMember = async (classId, memberId) => {

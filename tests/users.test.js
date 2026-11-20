@@ -100,7 +100,8 @@ describe("Users API", () => {
       .set("Authorization", `Bearer ${adminToken}`);
 
     assert.equal(listRes.status, 200);
-    assert.ok(Array.isArray(listRes.body.data));
+    const users = listRes.body.data.users || listRes.body.data;
+    assert.ok(Array.isArray(users));
 
     const updateRes = await request(app)
       .patch(`/users/${createdTarget.id}`)

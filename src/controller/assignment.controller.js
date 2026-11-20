@@ -6,8 +6,14 @@ export const getAssignmentsByClassId = catchAsync(async (req, res) => {
   const assignments = await assignmentService.getAssignmentsByClassId(
     req.params.id,
     req.user,
+    req.query,
   );
-  return sendSuccess(res, 200, "Fetched assignments successfully!", assignments);
+  return sendSuccess(
+    res,
+    200,
+    "Fetched assignments successfully!",
+    assignments,
+  );
 });
 
 export const getAssignmentById = catchAsync(async (req, res) => {
@@ -15,14 +21,19 @@ export const getAssignmentById = catchAsync(async (req, res) => {
     req.params.id,
     req.user,
   );
-  return sendSuccess(res, 200, "Fetched assignment details successfully!", assignment);
+  return sendSuccess(
+    res,
+    200,
+    "Fetched assignment details successfully!",
+    assignment,
+  );
 });
 
 export const createAssignment = catchAsync(async (req, res) => {
   const assignment = await assignmentService.createAssignment(
-    req.params.id, 
-    req.body,      
-    req.user,     
+    req.params.id,
+    req.body,
+    req.user,
   );
   return sendSuccess(res, 201, "Assignment created successfully!", assignment);
 });

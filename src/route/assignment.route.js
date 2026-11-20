@@ -9,7 +9,7 @@ import {
 } from "../middleware/validate.js";
 import { authenticateToken } from "../middleware/auth.middleware.js";
 import { requirePermission } from "../middleware/rbac.middleware.js";
-import { uploadSingle } from "../middleware/upload.middleware.js";
+import { uploadFiles } from "../middleware/upload.middleware.js";
 import { PERMISSIONS } from "../constants/permissions.js";
 
 const router = Router();
@@ -47,7 +47,7 @@ router.post(
   "/:id/submissions",
   authenticateToken,
   requirePermission(PERMISSIONS.SUBMISSION_CREATE),
-  uploadSingle,
+  uploadFiles,
   validate([...assignmentIdParamRules, ...submitAssignmentRules]),
   submissionController.submitAssignment,
 );

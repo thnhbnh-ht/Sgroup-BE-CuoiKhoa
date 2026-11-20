@@ -11,7 +11,11 @@ const getAuthInfo = (requestingUser) => {
   return { roles, id };
 };
 
-export const getAssignmentsByClassId = async (classId, requestingUser) => {
+export const getAssignmentsByClassId = async (
+  classId,
+  requestingUser,
+  options = {},
+) => {
   const classData = await classRepository.findById(classId);
 
   if (!classData) {
@@ -24,10 +28,12 @@ export const getAssignmentsByClassId = async (classId, requestingUser) => {
   const isMember = await classRepository.isMemberOfClass(classId, userId);
 
   if (!isAdmin && !isMentor && !isMember) {
-    throw new ForbiddenError("You do not have permission to view assignments of this class!");
+    throw new ForbiddenError(
+      "You do not have permission to view assignments of this class!",
+    );
   }
 
-  return await assignmentRepository.findAllByClassId(classId);
+  return await assignmentRepository.findAllByClassId(classId, options);
 };
 
 export const getAssignmentById = async (id, requestingUser) => {

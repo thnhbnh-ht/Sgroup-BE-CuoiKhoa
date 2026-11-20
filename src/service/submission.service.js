@@ -105,7 +105,7 @@ export const submitAssignment = async (
   assignmentId,
   data = {},
   requestingUser,
-  file = null,
+  fileOrFiles = null,
 ) => {
   const assignment = await submissionRepository.findAssignmentById(assignmentId);
 
@@ -128,26 +128,28 @@ export const submitAssignment = async (
     throw new BadRequestError("The deadline for this assignment has passed!");
   }
 
-  let uploadedFile = null;
-  if (file) {
-    uploadedFile = await uploadService.uploadFile(file, requestingUser.id);
+  let fileList = [];
+  if (Array.isArray(fileOrFiles)) {
+    fileList = fileOrFiles;
+  } else if (fileOrFiles) {
+    fileList = [fileOrFiles];
   }
 
-  const repositoryUrl = data.repositoryUrl || uploadedFile?.url || null;
+  const uploadedFiles = [];
+  for (const f of fileList) {
+    const uploaded = await uploadService.uploadFile(f, requestingUser.id);
+    uploadedFiles.push(uploaded);
+  }
+
+  const repositoryUrl = data.repositoryUrl || uploadedFiles[0]?.url || null;
 
   const submission = await submissionRepository.upsert({
     assignmentId,
     memberId: requestingUser.id,
     content: data.content,
     repositoryUrl,
+    uploadIds: uploadedFiles.map((u) => u.id),
   });
-
-  if (uploadedFile) {
-    return {
-      ...submission,
-      attachment: uploadedFile,
-    };
-  }
 
   return submission;
 };

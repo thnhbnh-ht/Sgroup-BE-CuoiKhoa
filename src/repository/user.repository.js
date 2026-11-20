@@ -1,18 +1,53 @@
 import pool from "../config/db.config.js";
 
-export const findAll = async ({ sortBy = "id", order = "asc" }) => {
-  const validSortColumns = ["id", "name", "email"];
+export const findAll = async ({
+  page = 1,
+  limit = 10,
+  search,
+  role,
+  sortBy = "id",
+  order = "asc",
+} = {}) => {
+  const validSortColumns = ["id", "name", "email", "created_at"];
+  const sortCol = validSortColumns.includes(sortBy) ? sortBy : "id";
+  const sortOrder = order.toLowerCase() === "desc" ? "DESC" : "ASC";
 
-  if (!validSortColumns.includes(sortBy)) {
-    throw new Error(`Invalid sort column: ${sortBy}`);
+  const parsedPage = Math.max(1, parseInt(page, 10) || 1);
+  const parsedLimit = Math.max(1, Math.min(100, parseInt(limit, 10) || 10));
+  const offset = (parsedPage - 1) * parsedLimit;
+
+  const conditions = [];
+  const values = [];
+  let paramIndex = 1;
+
+  if (search && search.trim() !== "") {
+    conditions.push(
+      `(u.name ILIKE $${paramIndex} OR u.email ILIKE $${paramIndex})`,
+    );
+    values.push(`%${search.trim()}%`);
+    paramIndex++;
   }
 
-  const validOrder = ["asc", "desc"];
-  if (!validOrder.includes(order.toLowerCase())) {
-    throw new Error(`Invalid order: ${order}`);
+  if (role && role.trim() !== "") {
+    conditions.push(`EXISTS (
+      SELECT 1 FROM user_roles ur2
+      JOIN roles r2 ON r2.id = ur2.role_id
+      WHERE ur2.user_id = u.id AND r2.name ILIKE $${paramIndex}
+    )`);
+    values.push(role.trim().toUpperCase());
+    paramIndex++;
   }
 
-  const result = await pool.query(
+  const whereClause =
+    conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
+
+  const countResult = await pool.query(
+    `SELECT COUNT(u.id)::int AS total FROM users u ${whereClause}`,
+    values,
+  );
+  const total = countResult.rows[0]?.total || 0;
+
+  const dataResult = await pool.query(
     `
     SELECT 
         u.id, u.name, u.email, u.created_at,
@@ -23,12 +58,23 @@ export const findAll = async ({ sortBy = "id", order = "asc" }) => {
     FROM users u
     LEFT JOIN user_roles ur ON ur.user_id = u.id
     LEFT JOIN roles r ON r.id = ur.role_id
+    ${whereClause}
     GROUP BY u.id
-    ORDER BY u.${sortBy} ${order}
+    ORDER BY u.${sortCol} ${sortOrder}
+    LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
     `,
+    [...values, parsedLimit, offset],
   );
 
-  return result.rows;
+  return {
+    users: dataResult.rows,
+    pagination: {
+      total,
+      page: parsedPage,
+      limit: parsedLimit,
+      totalPages: Math.ceil(total / parsedLimit),
+    },
+  };
 };
 
 export const findByEmail = async (email) => {

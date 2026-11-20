@@ -1,5 +1,41 @@
 import pool from "../config/db.config.js";
 
+const ATTACHMENTS_SUBQUERY = `
+  COALESCE(
+    (
+      SELECT json_agg(json_build_object(
+        'id', u.id,
+        'originalName', u.original_name,
+        'mimeType', u.mime_type,
+        'size', u.size,
+        'url', u.url,
+        'createdAt', u.created_at
+      ))
+      FROM (
+        SELECT u.id, u.original_name, u.mime_type, u.size, u.url, u.created_at
+        FROM submission_attachments sa
+        JOIN uploads u ON u.id = sa.upload_id
+        WHERE sa.submission_id = s.id
+        UNION
+        SELECT u.id, u.original_name, u.mime_type, u.size, u.url, u.created_at
+        FROM uploads u
+        WHERE u.url = s.repository_url
+      ) u
+    ),
+    '[]'::json
+  ) AS attachments
+`;
+
+const formatSubmissionWithAttachment = (row) => {
+  if (!row) return null;
+  const attachments = Array.isArray(row.attachments) ? row.attachments : [];
+  return {
+    ...row,
+    attachments,
+    attachment: attachments[0] || null,
+  };
+};
+
 export const findByAssignmentAndMember = async (assignmentId, memberId) => {
   const result = await pool.query(
     `
@@ -21,7 +57,8 @@ export const findByAssignmentAndMember = async (assignmentId, memberId) => {
       u_member.name AS member_name,
       u_member.email AS member_email,
       u_reviewer.name AS reviewer_name,
-      u_reviewer.email AS reviewer_email
+      u_reviewer.email AS reviewer_email,
+      ${ATTACHMENTS_SUBQUERY}
     FROM submissions s
     JOIN assignments a ON a.id = s.assignment_id
     JOIN users u_member ON u_member.id = s.member_id
@@ -32,7 +69,7 @@ export const findByAssignmentAndMember = async (assignmentId, memberId) => {
     [assignmentId, memberId],
   );
 
-  return result.rows[0] || null;
+  return formatSubmissionWithAttachment(result.rows[0]);
 };
 
 export const findById = async (id) => {
@@ -57,7 +94,8 @@ export const findById = async (id) => {
       u_member.name AS member_name,
       u_member.email AS member_email,
       u_reviewer.name AS reviewer_name,
-      u_reviewer.email AS reviewer_email
+      u_reviewer.email AS reviewer_email,
+      ${ATTACHMENTS_SUBQUERY}
     FROM submissions s
     JOIN assignments a ON a.id = s.assignment_id
     JOIN classes c ON c.id = a.class_id
@@ -68,13 +106,17 @@ export const findById = async (id) => {
     [id],
   );
 
-  return result.rows[0] || null;
+  return formatSubmissionWithAttachment(result.rows[0]);
 };
 
 export const findAllByAssignmentId = async (
   assignmentId,
-  { page = 1, limit = 10, status, search } = {},
+  { page = 1, limit = 10, status, search, sortBy = "submitted_at", order = "desc" } = {},
 ) => {
+  const validSortColumns = ["id", "submitted_at", "score"];
+  const sortCol = validSortColumns.includes(sortBy) ? sortBy : "submitted_at";
+  const sortOrder = order.toLowerCase() === "asc" ? "ASC" : "DESC";
+
   const parsedPage = Math.max(1, parseInt(page, 10) || 1);
   const parsedLimit = Math.max(1, Math.min(100, parseInt(limit, 10) || 10));
   const offset = (parsedPage - 1) * parsedLimit;
@@ -126,19 +168,20 @@ export const findAllByAssignmentId = async (
       u_member.name AS member_name,
       u_member.email AS member_email,
       u_reviewer.name AS reviewer_name,
-      u_reviewer.email AS reviewer_email
+      u_reviewer.email AS reviewer_email,
+      ${ATTACHMENTS_SUBQUERY}
     FROM submissions s
     JOIN users u_member ON u_member.id = s.member_id
     LEFT JOIN users u_reviewer ON u_reviewer.id = s.reviewed_by
     WHERE ${whereClause}
-    ORDER BY s.submitted_at DESC, s.id DESC
+    ORDER BY s.${sortCol} ${sortOrder}, s.id DESC
     LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
     `,
     [...values, parsedLimit, offset],
   );
 
   return {
-    submissions: dataResult.rows,
+    submissions: dataResult.rows.map(formatSubmissionWithAttachment),
     pagination: {
       total,
       page: parsedPage,
@@ -212,7 +255,8 @@ export const findAllByMemberId = async (
       c.id AS class_id,
       c.name AS class_name,
       u_reviewer.name AS reviewer_name,
-      u_reviewer.email AS reviewer_email
+      u_reviewer.email AS reviewer_email,
+      ${ATTACHMENTS_SUBQUERY}
     FROM submissions s
     JOIN assignments a ON a.id = s.assignment_id
     JOIN classes c ON c.id = a.class_id
@@ -225,7 +269,7 @@ export const findAllByMemberId = async (
   );
 
   return {
-    submissions: dataResult.rows,
+    submissions: dataResult.rows.map(formatSubmissionWithAttachment),
     pagination: {
       total,
       page: parsedPage,
@@ -240,8 +284,9 @@ export const upsert = async ({
   memberId,
   content,
   repositoryUrl,
+  uploadIds = [],
 }) => {
-  await pool.query(
+  const insertResult = await pool.query(
     `
     INSERT INTO submissions (
       assignment_id,
@@ -259,10 +304,25 @@ export const upsert = async ({
       feedback = NULL,
       reviewed_by = NULL,
       reviewed_at = NULL
-    RETURNING *
+    RETURNING id
     `,
     [assignmentId, memberId, content ?? null, repositoryUrl ?? null],
   );
+
+  const submissionId = insertResult.rows[0]?.id;
+
+  if (submissionId && uploadIds && uploadIds.length > 0) {
+    for (const uploadId of uploadIds) {
+      await pool.query(
+        `
+        INSERT INTO submission_attachments (submission_id, upload_id)
+        VALUES ($1, $2)
+        ON CONFLICT (submission_id, upload_id) DO NOTHING
+        `,
+        [submissionId, uploadId],
+      );
+    }
+  }
 
   return await findByAssignmentAndMember(assignmentId, memberId);
 };
