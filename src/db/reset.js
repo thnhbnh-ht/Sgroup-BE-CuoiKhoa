@@ -2,6 +2,11 @@ import pool from "../config/db.config.js";
 import { execSync } from "child_process";
 
 async function resetDB() {
+  if (process.env.NODE_ENV === "production") {
+    console.error("⛔ NGUY HIỂM: Tuyệt đối không được phép reset database trên môi trường Production!");
+    process.exit(1);
+  }
+
   const client = await pool.connect();
   try {
     console.log("🧹 Đang làm sạch cơ sở dữ liệu (xóa toàn bộ bảng cũ)...");
@@ -25,3 +30,4 @@ resetDB().catch((err) => {
   console.error("❌ Reset database thất bại:", err.message);
   process.exit(1);
 });
+
