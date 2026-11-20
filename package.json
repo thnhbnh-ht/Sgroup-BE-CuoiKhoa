@@ -9,7 +9,7 @@
     "migrate": "node src/db/migrate.js",
     "seed": "node src/db/seed.js",
     "db:reset": "node src/db/reset.js",
-    "test": "node --test tests/**/*.test.js"
+    "test": "node --test"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1141.0",
