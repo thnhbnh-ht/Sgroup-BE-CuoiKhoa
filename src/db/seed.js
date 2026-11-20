@@ -7,7 +7,7 @@ import { hashPassword } from "../utils/password.helper.js";
 
 const ADMIN_USER = {
   name: "Admin S-Group",
-  email: "admin@sgroup.local",
+  email: "admin@sgroup.vn",
   password: "Password@123",
   roleName: "ADMIN",
 };
@@ -62,7 +62,11 @@ const MEMBERS = [
 // 2. CÁC HÀM TIỆN ÍCH SEED AN TOÀN (IDEMPOTENT)
 // ============================================================
 
-const ensureUser = async (client, { name, email, password, roleName }, sharedHashedPassword) => {
+const ensureUser = async (
+  client,
+  { name, email, password, roleName },
+  sharedHashedPassword,
+) => {
   const existingResult = await client.query(
     `SELECT id, name, email FROM users WHERE email = $1`,
     [email],
@@ -227,8 +231,13 @@ const ensureAssignment = async (
   return insertedResult.rows[0];
 };
 
-const ensureUpload = async (client, { originalName, mimeType, size, objectKey, url, uploadedBy }) => {
-  const existing = await client.query(`SELECT * FROM uploads WHERE url = $1`, [url]);
+const ensureUpload = async (
+  client,
+  { originalName, mimeType, size, objectKey, url, uploadedBy },
+) => {
+  const existing = await client.query(`SELECT * FROM uploads WHERE url = $1`, [
+    url,
+  ]);
   if (existing.rows[0]) return existing.rows[0];
 
   const inserted = await client.query(
@@ -333,7 +342,9 @@ const seed = async () => {
       const u = await ensureUser(client, m, sharedHashedPassword);
       mentorMap[m.email] = u;
     }
-    console.log(`✅ Tạo thành công 10 Mentors: Nguyễn Hữu Khôi, Nguyễn Việt Trung, ...`);
+    console.log(
+      `✅ Tạo thành công 10 Mentors: Nguyễn Hữu Khôi, Nguyễn Việt Trung, ...`,
+    );
 
     // 4. Tạo 30 Members
     const membersList = [];
@@ -341,20 +352,45 @@ const seed = async () => {
       const u = await ensureUser(client, m, sharedHashedPassword);
       membersList.push(u);
     }
-    console.log(`✅ Tạo thành công 30 Members (${membersList.length} học viên)`);
+    console.log(
+      `✅ Tạo thành công 30 Members (${membersList.length} học viên)`,
+    );
 
     // 5. Tạo 5 Lớp học (mỗi lớp 10 học viên)
     // Chia nhóm 10 học viên cho từng lớp
-    const group1 = membersList.slice(0, 10);   // Học viên 1 -> 10
-    const group2 = membersList.slice(10, 20);  // Học viên 11 -> 20
-    const group3 = membersList.slice(20, 30);  // Học viên 21 -> 30
-    const group4 = [membersList[0], membersList[2], membersList[4], membersList[6], membersList[8], membersList[10], membersList[12], membersList[14], membersList[16], membersList[18]];
-    const group5 = [membersList[1], membersList[3], membersList[5], membersList[7], membersList[9], membersList[11], membersList[13], membersList[15], membersList[17], membersList[19]];
+    const group1 = membersList.slice(0, 10); // Học viên 1 -> 10
+    const group2 = membersList.slice(10, 20); // Học viên 11 -> 20
+    const group3 = membersList.slice(20, 30); // Học viên 21 -> 30
+    const group4 = [
+      membersList[0],
+      membersList[2],
+      membersList[4],
+      membersList[6],
+      membersList[8],
+      membersList[10],
+      membersList[12],
+      membersList[14],
+      membersList[16],
+      membersList[18],
+    ];
+    const group5 = [
+      membersList[1],
+      membersList[3],
+      membersList[5],
+      membersList[7],
+      membersList[9],
+      membersList[11],
+      membersList[13],
+      membersList[15],
+      membersList[17],
+      membersList[19],
+    ];
 
     const CLASSES_CONFIG = [
       {
         name: "Lập trình Backend Node.js K10",
-        description: "Khóa đào tạo chuyên sâu Express.js, PostgreSQL, JWT và Cloudflare R2",
+        description:
+          "Khóa đào tạo chuyên sâu Express.js, PostgreSQL, JWT và Cloudflare R2",
         startDate: "2026-09-01",
         endDate: "2026-12-30", // ongoing
         mentor: mentorMap["nguyenhuukhoi@gmail.com"],
@@ -370,7 +406,8 @@ const seed = async () => {
       },
       {
         name: "Lập trình Web Fullstack JavaScript 2026",
-        description: "Khóa học toàn diện từ Frontend đến Backend và triển khai CI/CD",
+        description:
+          "Khóa học toàn diện từ Frontend đến Backend và triển khai CI/CD",
         startDate: "2026-05-01",
         endDate: "2026-08-30", // completed
         mentor: mentorMap["tranminhquang@gmail.com"],
@@ -378,7 +415,8 @@ const seed = async () => {
       },
       {
         name: "Kiến trúc Cơ sở dữ liệu & PostgreSQL Nâng Cao",
-        description: "Tối ưu hóa Index, Query Plan, Partitioning và Transactions",
+        description:
+          "Tối ưu hóa Index, Query Plan, Partitioning và Transactions",
         startDate: "2026-12-15",
         endDate: "2027-02-28", // upcoming
         mentor: mentorMap["lehoanglong@gmail.com"],
@@ -386,7 +424,8 @@ const seed = async () => {
       },
       {
         name: "Docker, Kubernetes & Microservices Thực Chiến",
-        description: "Container hóa ứng dụng, xây dựng kiến trúc Microservices và API Gateway",
+        description:
+          "Container hóa ứng dụng, xây dựng kiến trúc Microservices và API Gateway",
         startDate: "2026-12-20",
         endDate: "2027-03-30", // upcoming
         mentor: mentorMap["phamducthang@gmail.com"],
@@ -445,7 +484,8 @@ const seed = async () => {
       const assign1 = await ensureAssignment(client, {
         classId: cls.id,
         title: "Bài tập 01: Xây dựng CRUD API với PostgreSQL",
-        description: "Yêu cầu đầy đủ validation, mã hóa password, phân quyền và bắt lỗi chi tiết.",
+        description:
+          "Yêu cầu đầy đủ validation, mã hóa password, phân quyền và bắt lỗi chi tiết.",
         deadline: "2026-11-15T23:59:59.000Z",
         maximumScore: 100,
         createdBy: classConf.mentor.id,
@@ -454,7 +494,8 @@ const seed = async () => {
       const assign2 = await ensureAssignment(client, {
         classId: cls.id,
         title: "Đồ án giữa khóa: Tích hợp Upload File và Phân trang",
-        description: "Hỗ trợ nộp nhiều file đính kèm, phân trang query params, kiểm thử tích hợp.",
+        description:
+          "Hỗ trợ nộp nhiều file đính kèm, phân trang query params, kiểm thử tích hợp.",
         deadline: "2026-12-25T23:59:59.000Z",
         maximumScore: 100,
         createdBy: classConf.mentor.id,
@@ -478,7 +519,8 @@ const seed = async () => {
         content: `Em xin phép gửi bài tập 01 của lớp ${classConf.name}. Em đã viết đầy đủ mã nguồn và tài liệu API.`,
         repositoryUrl: `https://github.com/${student1.email.split("@")[0]}/assignment-01`,
         score: 95,
-        feedback: "Code rất sạch đẹp, cấu trúc 3 lớp rõ ràng, validation và xử lý lỗi chặt chẽ. Rất tốt!",
+        feedback:
+          "Code rất sạch đẹp, cấu trúc 3 lớp rõ ràng, validation và xử lý lỗi chặt chẽ. Rất tốt!",
         reviewedBy: classConf.mentor.id,
       });
       await ensureSubmissionAttachment(client, sub1.id, upload1.id);
@@ -532,17 +574,27 @@ const seed = async () => {
     console.log("🎉🎉🎉 SEED TOÀN BỘ DỮ LIỆU THÀNH CÔNG RỰC RỠ!");
     console.log("------------------------------------------------------------");
     console.log("📊 TỔNG KẾT DỮ LIỆU ĐÃ NẠP:");
-    console.log("  - 1 Tài khoản Admin: admin@sgroup.local (Mật khẩu: Password@123)");
-    console.log("  - 10 Tài khoản Mentor: nguyenhuukhoi@gmail.com, nguyenviettrung@gmail.com,...");
-    console.log("  - 30 Tài khoản Học viên (Member): phucthinh@gmail.com, thanhbinh@gmail.com,...");
-    console.log("  - 5 Lớp học (Mỗi lớp có đúng 10 học viên, đầy đủ các trạng thái ongoing, upcoming, completed)");
+    console.log(
+      "  - 1 Tài khoản Admin: admin@sgroup.local (Mật khẩu: Password@123)",
+    );
+    console.log(
+      "  - 10 Tài khoản Mentor: nguyenhuukhoi@gmail.com, nguyenviettrung@gmail.com,...",
+    );
+    console.log(
+      "  - 30 Tài khoản Học viên (Member): phucthinh@gmail.com, thanhbinh@gmail.com,...",
+    );
+    console.log(
+      "  - 5 Lớp học (Mỗi lớp có đúng 10 học viên, đầy đủ các trạng thái ongoing, upcoming, completed)",
+    );
     console.log("  - 25 Bài học (Lessons)");
     console.log("  - 10 Bài tập (Assignments)");
-    console.log("  - 20 Bài nộp (Submissions: có cả bài đã chấm có điểm/feedback, bài chờ chấm, file đính kèm R2)");
+    console.log(
+      "  - 20 Bài nộp (Submissions: có cả bài đã chấm có điểm/feedback, bài chờ chấm, file đính kèm R2)",
+    );
     console.log("------------------------------------------------------------");
   } catch (error) {
     await client.query("ROLLBACK");
-    console.error("❌ Seed failed:", error.message);
+    console.error("Seed failed:", error.message);
     process.exitCode = 1;
   } finally {
     client.release();
