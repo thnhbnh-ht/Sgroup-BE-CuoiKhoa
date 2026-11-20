@@ -130,6 +130,19 @@ CREATE TABLE IF NOT EXISTS uploads (
   CONSTRAINT chk_uploads_size CHECK (size > 0)
 );
 
+-- 13. Bảng submission_attachments (Liên kết đính kèm nhiều file cho bài nộp)
+CREATE TABLE IF NOT EXISTS submission_attachments (
+  id BIGSERIAL PRIMARY KEY,
+  submission_id BIGINT NOT NULL REFERENCES submissions(id) ON DELETE CASCADE,
+  upload_id BIGINT NOT NULL REFERENCES uploads(id) ON DELETE CASCADE,
+  created_at TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT unique_submission_upload UNIQUE (submission_id, upload_id)
+);
+
+-- Index tối ưu hóa truy vấn attachment theo bài nộp
+CREATE INDEX IF NOT EXISTS idx_submission_attachments_submission_id
+  ON submission_attachments(submission_id);
+
 -- ============================================================
 -- KHỞI TẠO DỮ LIỆU CỐT LÕI (ROLES & PERMISSIONS HỆ THỐNG)
 -- ============================================================
@@ -192,3 +205,4 @@ WHERE r.name = 'MEMBER'
     'UPLOAD_CREATE'
   )
 ON CONFLICT (role_id, permission_id) DO NOTHING;
+
