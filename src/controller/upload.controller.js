@@ -13,6 +13,6 @@ export const getUploadById = catchAsync(async (req, res) => {
 });
 
 export const getMyUploads = catchAsync(async (req, res) => {
-  const result = await uploadService.getMyUploads(req.user.id);
+  const result = await uploadService.getMyUploads(req.user.id, req.query);
   return sendSuccess(res, 200, "Fetched uploaded files successfully!", result);
 });

@@ -57,6 +57,6 @@ export const getUploadById = async (id) => {
   return upload;
 };
 
-export const getMyUploads = async (userId) => {
-  return await uploadRepository.findAllByUserId(userId);
+export const getMyUploads = async (userId, options = {}) => {
+  return await uploadRepository.findAllByUserId(userId, options);
 };

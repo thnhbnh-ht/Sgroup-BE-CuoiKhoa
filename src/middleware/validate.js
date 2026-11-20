@@ -474,7 +474,11 @@ export const updateAssignmentRules = [
 
 export const submitAssignmentRules = [
   body().custom((value, { req }) => {
-    if (req.file) {
+    if (
+      req.file ||
+      (req.uploadedFileList && req.uploadedFileList.length > 0) ||
+      (req.files && Object.keys(req.files).length > 0)
+    ) {
       return true;
     }
 

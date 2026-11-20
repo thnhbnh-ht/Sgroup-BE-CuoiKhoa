@@ -27,22 +27,23 @@ export const getSubmissionById = catchAsync(async (req, res) => {
 });
 
 export const submitAssignment = catchAsync(async (req, res) => {
+  const fileInput = req.uploadedFileList || (req.file ? [req.file] : null);
   const submission = await submissionService.submitAssignment(
     req.params.id,
     req.body,
     req.user,
-    req.file,
+    fileInput,
   );
 
   return sendSuccess(res, 201, "Assignment submitted successfully!", submission);
 });
 
 export const getSubmissionsByAssignmentId = catchAsync(async (req, res) => {
-  const { page, limit, status, search } = req.query;
+  const { page, limit, status, search, sortBy, order } = req.query;
   const result = await submissionService.getSubmissionsByAssignmentId(
     req.params.id,
     req.user,
-    { page, limit, status, search },
+    { page, limit, status, search, sortBy, order },
   );
 
   return sendSuccess(

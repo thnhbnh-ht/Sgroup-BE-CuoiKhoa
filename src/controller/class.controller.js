@@ -3,7 +3,7 @@ import catchAsync from "../utils/catchAsync.js";
 import { sendSuccess } from "../utils/responseHelper.js";
 
 export const getAllClasses = catchAsync(async (req, res) => {
-  const classes = await classService.getAllClasses(req.user);
+  const classes = await classService.getAllClasses(req.user, req.query);
 
   return sendSuccess(res, 200, "Fetched classes successfully!", classes);
 });
@@ -11,7 +11,12 @@ export const getAllClasses = catchAsync(async (req, res) => {
 export const getClassById = catchAsync(async (req, res) => {
   const classData = await classService.getClassById(req.params.id, req.user);
 
-  return sendSuccess(res, 200, "Fetched class details successfully!", classData);
+  return sendSuccess(
+    res,
+    200,
+    "Fetched class details successfully!",
+    classData,
+  );
 });
 
 export const createClass = catchAsync(async (req, res) => {
@@ -33,7 +38,10 @@ export const deleteClass = catchAsync(async (req, res) => {
 });
 
 export const getMembersOfClass = catchAsync(async (req, res) => {
-  const members = await classService.getMembersOfClass(req.params.id);
+  const members = await classService.getMembersOfClass(
+    req.params.id,
+    req.query,
+  );
 
   return sendSuccess(res, 200, "Fetched class members successfully!", members);
 });
@@ -53,7 +61,12 @@ export const removeClassMember = catchAsync(async (req, res) => {
     req.params.memberId,
   );
 
-  return sendSuccess(res, 200, "Member removed from class successfully!", member);
+  return sendSuccess(
+    res,
+    200,
+    "Member removed from class successfully!",
+    member,
+  );
 });
 
 export const assignMentor = catchAsync(async (req, res) => {
@@ -62,5 +75,10 @@ export const assignMentor = catchAsync(async (req, res) => {
     req.body.mentorId,
   );
 
-  return sendSuccess(res, 200, "Mentor assigned to class successfully!", classData);
+  return sendSuccess(
+    res,
+    200,
+    "Mentor assigned to class successfully!",
+    classData,
+  );
 });
