@@ -60,7 +60,6 @@ export const login = async ({ email, password }) => {
       name: user.name,
       email: user.email,
       roles: user.roles,
-      permissions,
     },
     accessToken,
     refreshToken,
