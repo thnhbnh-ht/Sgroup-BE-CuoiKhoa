@@ -327,14 +327,14 @@ const seed = async () => {
 
   try {
     await client.query("BEGIN");
-    console.log("🌱 Bắt đầu khởi tạo dữ liệu mẫu phong phú...");
+    console.log("Bắt đầu khởi tạo dữ liệu mẫu...");
 
     // 1. Hash password 1 lần dùng chung để seed nhanh
     const sharedHashedPassword = await hashPassword("Password@123");
 
     // 2. Tạo 1 Admin
     const admin = await ensureUser(client, ADMIN_USER, sharedHashedPassword);
-    console.log(`✅ Tạo Admin: ${admin.name} (${admin.email})`);
+    console.log(`Tạo Admin: ${admin.name} (${admin.email})`);
 
     // 3. Tạo 10 Mentors
     const mentorMap = {};
@@ -343,7 +343,7 @@ const seed = async () => {
       mentorMap[m.email] = u;
     }
     console.log(
-      `✅ Tạo thành công 10 Mentors: Nguyễn Hữu Khôi, Nguyễn Việt Trung, ...`,
+      `Tạo thành công 10 Mentors: Nguyễn Hữu Khôi, Nguyễn Việt Trung, ...`,
     );
 
     // 4. Tạo 30 Members
@@ -353,7 +353,7 @@ const seed = async () => {
       membersList.push(u);
     }
     console.log(
-      `✅ Tạo thành công 30 Members (${membersList.length} học viên)`,
+      `Tạo thành công 30 Members (${membersList.length} học viên)`,
     );
 
     // 5. Tạo 5 Lớp học (mỗi lớp 10 học viên)
@@ -433,7 +433,7 @@ const seed = async () => {
       },
     ];
 
-    console.log("📚 Bắt đầu tạo 5 lớp học, bài học, bài tập và nộp bài...");
+    console.log("Bắt đầu tạo 5 lớp học, bài học, bài tập và nộp bài...");
 
     for (const classConf of CLASSES_CONFIG) {
       const cls = await ensureClass(client, {
@@ -571,9 +571,9 @@ const seed = async () => {
     }
 
     await client.query("COMMIT");
-    console.log("🎉🎉🎉 SEED TOÀN BỘ DỮ LIỆU THÀNH CÔNG RỰC RỠ!");
+    console.log("Seed toan bo du lieu thanh cong!");
     console.log("------------------------------------------------------------");
-    console.log("📊 TỔNG KẾT DỮ LIỆU ĐÃ NẠP:");
+    console.log("TONG KET DU LIEU DA NAP:");
     console.log(
       "  - 1 Tài khoản Admin: admin@sgroup.local (Mật khẩu: Password@123)",
     );
